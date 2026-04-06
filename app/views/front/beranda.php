@@ -566,7 +566,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
   <section class="temukan-layanan" id="jasa" style="margin-top: 100px;">
     <div class="container">
-      <h2 class="tp-title">Andra dan Radhitya</h2>
+      <h2 class="tp-title">Temukan Layanan Jahit Terbaik untuk Anda</h2>
 
       <!-- Filter Tabs -->
       <div class="tp-filters" role="tablist" aria-label="Filter Layanan">
