@@ -260,7 +260,7 @@ class UserController extends Controller {
 
     public function hapus() {
         $this->checkAuth();
-        if (isset($_GET['id_user'])) {
+        if (isset($_GET['id_user'])) {  
             $pelangganModel = $this->model('User');
             $pelangganModel->delete((int)$_GET['id_user']);
             $_SESSION['berhasil'] = 'Data berhasil dihapus';

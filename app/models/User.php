@@ -13,6 +13,11 @@ class User {
         return $this->db->resultSet();
     }
 
+    public function getPelanggan() {
+        $this->db->query("SELECT id_user, nama_lengkap, no_telepon, email FROM users WHERE LOWER(role) = 'pelanggan' ORDER BY nama_lengkap ASC");
+        return $this->db->resultSet();
+    }
+
     public function getUserByKode(string $kode_user) {
         $this->db->query("SELECT * FROM users WHERE kode_user = :kode_user LIMIT 1");
         $this->db->bind(':kode_user', $kode_user);

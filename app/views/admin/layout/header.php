@@ -111,13 +111,15 @@ global $judul;
 				class="search-toggle-icon bi bi-search"
 				data-toggle="header_search"></div>
 			<div class="header-search">
-				<form>
+				<form method="GET" action="<?= base_url('admin/search') ?>">
 					<div class="form-group mb-0">
 						<i class="dw dw-search2 search-icon"></i>
 						<input
 							type="text"
+							name="q"
 							class="form-control search-input"
-							placeholder="Search Here" />
+							placeholder="Cari pelanggan, pesanan, layanan..."
+							autocomplete="off" />
 						<div class="dropdown">
 							<a
 								class="dropdown-toggle no-arrow"
@@ -128,31 +130,39 @@ global $judul;
 							</a>
 							<div class="dropdown-menu dropdown-menu-right">
 								<div class="form-group row">
-									<label class="col-sm-12 col-md-2 col-form-label">From</label>
-									<div class="col-sm-12 col-md-10">
+									<label class="col-sm-12 col-md-4 col-form-label">Dari Tanggal</label>
+									<div class="col-sm-12 col-md-8">
 										<input
-											class="form-control form-control-sm form-control-line"
-											type="text" />
+											name="tanggal_dari"
+											class="form-control form-control-sm"
+											type="date" />
 									</div>
 								</div>
 								<div class="form-group row">
-									<label class="col-sm-12 col-md-2 col-form-label">To</label>
-									<div class="col-sm-12 col-md-10">
+									<label class="col-sm-12 col-md-4 col-form-label">Sampai</label>
+									<div class="col-sm-12 col-md-8">
 										<input
-											class="form-control form-control-sm form-control-line"
-											type="text" />
+											name="tanggal_sampai"
+											class="form-control form-control-sm"
+											type="date" />
 									</div>
 								</div>
 								<div class="form-group row">
-									<label class="col-sm-12 col-md-2 col-form-label">Subject</label>
-									<div class="col-sm-12 col-md-10">
-										<input
-											class="form-control form-control-sm form-control-line"
-											type="text" />
+									<label class="col-sm-12 col-md-4 col-form-label">Status</label>
+									<div class="col-sm-12 col-md-8">
+										<select name="status" class="form-control form-control-sm">
+											<option value="">Semua Status</option>
+											<option value="menunggu">Menunggu</option>
+											<option value="proses">Proses</option>
+											<option value="selesai">Selesai</option>
+											<option value="diambil">Diambil</option>
+										</select>
 									</div>
 								</div>
 								<div class="text-right">
-									<button class="btn btn-primary">Search</button>
+									<button type="submit" class="btn btn-primary btn-sm">
+										<i class="fa fa-search"></i> Cari
+									</button>
 								</div>
 							</div>
 						</div>
@@ -161,81 +171,65 @@ global $judul;
 			</div>
 		</div>
 		<div class="header-right">
+			<?php
+			// AMBIL DATA NOTIFIKASI PESANAN BARU
+			require_once __DIR__ . '/../../../core/Database.php';
+			$dbNotif = new Database();
+			$dbNotif->query("
+				SELECT p.id_pesanan, u.nama_lengkap, u.foto, l.nama_layanan, p.tanggal_pesan 
+				FROM pesanan p
+				JOIN users u ON p.id_user = u.id_user
+				JOIN layanan l ON p.id_layanan = l.id_layanan
+				WHERE p.status_pesanan = 'menunggu' 
+				ORDER BY p.tanggal_pesan DESC LIMIT 5
+			");
+			$notifPesananBaru = $dbNotif->resultSet();
+			$jumlahNotif = count($notifPesananBaru);
+			?>
 			<div class="user-notification">
 				<div class="dropdown">
-					<a
+						<a
 						class="dropdown-toggle no-arrow"
 						href="#"
 						role="button"
 						data-toggle="dropdown">
 						<i class="icon-copy dw dw-notification"></i>
-						<span class="badge notification-active"></span>
+						<?php if ($jumlahNotif > 0): ?>
+							<span class="badge notification-active"></span>
+						<?php endif; ?>
 					</a>
 					<div class="dropdown-menu dropdown-menu-right">
 						<div class="notification-list mx-h-350 customscroll">
 							<ul>
-								<li>
-									<a href="#">
-										<img src="<?= base_url('public/images/img.jpg') ?>" alt="" />
-										<h3>John Doe</h3>
-										<p>
-											Lorem ipsum dolor sit amet, consectetur adipisicing
-											elit, sed...
-										</p>
-									</a>
-								</li>
-								<li>
-									<a href="#">
-										<img src="<?= base_url('public/images/photo1.jpg') ?>" alt="" />
-										<h3>Lea R. Frith</h3>
-										<p>
-											Lorem ipsum dolor sit amet, consectetur adipisicing
-											elit, sed...
-										</p>
-									</a>
-								</li>
-								<li>
-									<a href="#">
-										<img src="<?= base_url('public/images/photo2.jpg') ?>" alt="" />
-										<h3>Erik L. Richards</h3>
-										<p>
-											Lorem ipsum dolor sit amet, consectetur adipisicing
-											elit, sed...
-										</p>
-									</a>
-								</li>
-								<li>
-									<a href="#">
-										<img src="<?= base_url('public/images/photo3.jpg') ?>" alt="" />
-										<h3>John Doe</h3>
-										<p>
-											Lorem ipsum dolor sit amet, consectetur adipisicing
-											elit, sed...
-										</p>
-									</a>
-								</li>
-								<li>
-									<a href="#">
-										<img src="<?= base_url('public//images/photo4.jpg') ?>" alt="" />
-										<h3>Renee I. Hansen</h3>
-										<p>
-											Lorem ipsum dolor sit amet, consectetur adipisicing
-											elit, sed...
-										</p>
-									</a>
-								</li>
-								<li>
-									<a href="#">
-										<img src="<?= base_url('public/images/img.jpg') ?>" alt="" />
-										<h3>Vicki M. Coleman</h3>
-										<p>
-											Lorem ipsum dolor sit amet, consectetur adipisicing
-											elit, sed...
-										</p>
-									</a>
-								</li>
+								<?php if ($jumlahNotif > 0): ?>
+									<?php foreach ($notifPesananBaru as $notif): ?>
+										<li>
+											<a href="<?= base_url('admin/data_pesanan/pesananmenunggu') ?>">
+												<img src="<?= base_url('public/img/foto_pelanggan/' . (!empty($notif->foto) ? $notif->foto : 'default.jpg')) ?>" alt="" />
+												<h3><?= htmlspecialchars($notif->nama_lengkap) ?></h3>
+												<p>
+													Memesan jasa <strong><?= htmlspecialchars($notif->nama_layanan) ?></strong> pada <?= date('d M Y', strtotime($notif->tanggal_pesan)) ?>.
+												</p>
+											</a>
+										</li>
+									<?php endforeach; ?>
+								<?php else: ?>
+									<li>
+										<a href="#">
+											<h3 class="text-center mt-3 text-muted">Belum ada pesanan baru</h3>
+										</a>
+									</li>
+								<?php endif; ?>
 							</ul>
 						</div>
+						<?php if ($jumlahNotif > 0): ?>
+						<div style="padding: 10px 15px; border-top: 1px solid #eee;">
+							<a href="<?= base_url('admin/data_pesanan/pesananmenunggu') ?>"
+								class="btn btn-primary btn-block btn-sm">
+								<i class="fa fa-list"></i> Lihat Semua Pesanan Menunggu
+							</a>
+						</div>
+						<?php endif; ?>
 					</div>
 				</div>
 			</div>
@@ -254,9 +248,9 @@ global $judul;
 					</a>
 					<div
 						class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list">
-						<a class="dropdown-item" href="<?= base_url('admin/fitur_lainnya/profile.php') ?>"><i class="dw dw-user1"></i> Profile</a>
-						<a class="dropdown-item" href="<?= base_url('admin/fitur_lainnya/ubah_password.php') ?>"><i class="dw dw-settings2"></i> Ubah Password</a>
-						<a class="dropdown-item" href="<?= base_url('auth/logout.php') ?>"><i class="dw dw-logout"></i> Log Out</a>
+						<a class="dropdown-item" href="<?= base_url('admin/profile') ?>"><i class="dw dw-user1"></i> Profile</a>
+						<a class="dropdown-item" href="<?= base_url('admin/profile/ubah_password') ?>"><i class="dw dw-settings2"></i> Ubah Password</a>
+						<a class="dropdown-item" href="<?= base_url('auth/logout') ?>"><i class="dw dw-logout"></i> Log Out</a>
 					</div>
 				</div>
 			</div>
@@ -283,7 +277,7 @@ global $judul;
 			<div class="sidebar-menu">
 				<ul id="accordion-menu">
 					<li>
-						<a href="<?= base_url('admin/dashboard/dashboard.php') ?>" class="dropdown-toggle no-arrow">
+						<a href="<?= base_url('admin/dashboard/dashboard') ?>" class="dropdown-toggle no-arrow">
 							<span class="micon fa fa-line-chart"></span><span class="mtext">Dashboard</span>
 						</a>
 					</li>

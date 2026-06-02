@@ -33,11 +33,11 @@
                 </tr>
             </thead>
             <tbody>
-                <?php if(empty($users)) { ?>
+                <?php if(empty($users)) : ?>
                 <tr>
                     <td colspan="7" class="text-center">Data Kosong, silahkan tambahkan data baru</td>
                 </tr>
-                    <?php } else{ ?>
+                    <?php else : ?>
                         <?php $no = 1;
                         foreach($users as $user) : ?>
                         <tr>
@@ -74,7 +74,7 @@
                                         <a class="dropdown-item" href="<?= base_url('admin/data_pelanggan/edit?kode_user=' . urlencode($user->kode_user)) ?>">
                                             <i class="dw dw-edit2"></i> Edit
                                         </a>
-
+  
                                         <?php if ($user->id_user != $_SESSION['id_user']) : ?>
                                             <a class="dropdown-item tombol-hapus" href="<?= base_url('admin/data_pelanggan/hapus?id_user=' . $user->id_user) ?>"><i class="dw dw-delete-3"></i> Delete</a>
                                         <?php endif; ?>
@@ -82,8 +82,8 @@
                                 </div>
                             </td>
                         </tr>
-                        <?php endforeach; ?>
-                <?php } ?>
+                    <?php endforeach; ?>
+                <?php endif ?>
             </tbody>
         </table>
     </div>

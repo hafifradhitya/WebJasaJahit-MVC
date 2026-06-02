@@ -35,6 +35,7 @@ class DashboardController extends Controller {
 
         // Menyimpan global variable agar diakses di header dengan benar
         $GLOBALS['judul'] = $data['judul'];
+        $GLOBALS['no_preloader'] = $data['no_preloader'];
 
         $this->view('admin/dashboard/dashboard', $data);
     }

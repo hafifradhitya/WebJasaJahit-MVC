@@ -1,6 +1,6 @@
 <?php
 if (session_status() === PHP_SESSION_NONE) {
-    session_start();
+  session_start();
 }
 // Data $kategori_array dan $layanan_by_kategori sekarang didapatkan dari BerandaController
 ?>
@@ -217,28 +217,28 @@ if (session_status() === PHP_SESSION_NONE) {
   </style>
 
   <style>
-  .mobile-user-info {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 0;
-  }
+    .mobile-user-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 0;
+    }
 
-  .mobile-user-avatar {
-    width: 42px;
-    height: 42px;
-    border-radius: 50%;
-    object-fit: cover;
-  }
+    .mobile-user-avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
 
-  .mobile-user-text span {
-    font-size: 12px;
-    color: #aaa;
-  }
+    .mobile-user-text span {
+      font-size: 12px;
+      color: #aaa;
+    }
 
-  .mobile-menu-link.danger {
-    color: #ff5c5c;
-  }
+    .mobile-menu-link.danger {
+      color: #ff5c5c;
+    }
   </style>
 
   <!-- Popup Chat Pelanggan -->
@@ -373,7 +373,7 @@ if (session_status() === PHP_SESSION_NONE) {
           <img src="<?= base_url('public/img/logo/logo-jasa-jahit.png') ?>" alt="Jasa Jahit Premium" />
         </a>
       </div>
-  
+
       <nav class="main-nav">
         <a href="beranda#beranda">Beranda</a>
         <a href="beranda#tentang-jasa">Tentang Kami</a>
@@ -395,15 +395,15 @@ if (session_status() === PHP_SESSION_NONE) {
                 <span><?= htmlspecialchars($_SESSION['role'] ?? ''); ?></span>
               </h3>
               <ul>
-                <li><i class="fas fa-user"></i><a href="<?= base_url('pelanggan/fitur_lainnya/profile.php') ?>">Profil</a></li>
+                <li><i class="fas fa-user"></i><a href="<?= base_url('admin/profile') ?>">Profil</a></li>
                 <li><i class="fas fa-comments"></i><a href="javascript:void(0)" onclick="openChatPopup()">Chat</a></li>
-                <li><i class="fas fa-sign-out-alt"></i><a href="<?= base_url('auth/logout.php') ?>">Logout</a></li>
+                <li><i class="fas fa-sign-out-alt"></i><a href="<?= base_url('auth/logout') ?>">Logout</a></li>
               </ul>
             </div>
           </div>
         <?php else: ?>
-          <a href="<?= base_url('auth/login') ?>" class="nav-login">
-            <i class="fas fa-user"></i> Login
+          <a href="javascript:void(0)" onclick="openChatPopup()" class="nav-login">
+            <i class="fas fa-robot"></i> Tanya AI
           </a>
         <?php endif; ?>
 
@@ -439,11 +439,8 @@ if (session_status() === PHP_SESSION_NONE) {
       <?php if (!empty($_SESSION['login'])): ?>
         <!-- USER LOGIN -->
         <div class="mobile-user-info">
-          <img 
-            src="<?= base_url('public/img/foto_pelanggan/' . ($_SESSION['foto'] ?? 'default.jpg')) ?>" 
-            alt="Foto User"
-            class="mobile-user-avatar"
-          >
+          <img src="<?= base_url('public/img/foto_pelanggan/' . ($_SESSION['foto'] ?? 'default.jpg')) ?>" alt="Foto User"
+            class="mobile-user-avatar">
           <div class="mobile-user-text">
             <strong><?= htmlspecialchars($_SESSION['nama_lengkap']); ?></strong>
             <span><?= htmlspecialchars($_SESSION['role']); ?></span>
@@ -462,8 +459,8 @@ if (session_status() === PHP_SESSION_NONE) {
 
       <?php else: ?>
         <!-- BELUM LOGIN -->
-        <a href="<?= base_url('auth/login.php') ?>" class="mobile-menu-link secondary">
-          <i class="fas fa-sign-in-alt"></i> Login
+        <a href="javascript:void(0)" onclick="openChatPopup(); document.getElementById('mobileMenuClose').click();" class="mobile-menu-link secondary" style="color:#eab308">
+          <i class="fas fa-robot"></i> Tanya AI
         </a>
       <?php endif; ?>
     </div>
@@ -573,8 +570,9 @@ if (session_status() === PHP_SESSION_NONE) {
         <button class="tp-filter active" data-filter="all" role="tab" aria-selected="true">
           Semua Layanan
         </button>
-        <?php foreach ($kategori_array as $kategori) : ?>
-          <button class="tp-filter" data-filter="kategori-<?= $kategori['id_kategori'] ?>" role="tab" aria-selected="false">
+        <?php foreach ($kategori_array as $kategori): ?>
+          <button class="tp-filter" data-filter="kategori-<?= $kategori['id_kategori'] ?>" role="tab"
+            aria-selected="false">
             <?= htmlspecialchars($kategori['nama_kategori']) ?>
           </button>
         <?php endforeach ?>
@@ -595,29 +593,32 @@ if (session_status() === PHP_SESSION_NONE) {
         foreach ($layanan_by_kategori as $id_kat => $layanan_list) {
           foreach ($layanan_list as $layanan) {
             $total_layanan++;
-        ?>
+            ?>
             <article class="tp-card" data-category="kategori-<?= $layanan['id_kategori'] ?>">
               <div class="tp-card-media">
-                <img src="<?= base_url('public/img/layanan/' . $layanan['foto']) ?>" alt="<?= htmlspecialchars($layanan['nama_layanan']) ?>" loading="lazy" />
+                <img src="<?= base_url('public/img/layanan/' . $layanan['foto']) ?>"
+                  alt="<?= htmlspecialchars($layanan['nama_layanan']) ?>" loading="lazy" />
               </div>
               <div class="tp-card-body">
                 <h3><?= htmlspecialchars($layanan['nama_layanan']) ?></h3>
                 <p><?= htmlspecialchars($layanan['deskripsi']) ?></p>
-                <a href="<?= base_url('front/detail_layanan.php?id=' . $layanan['id_layanan']) ?>" class="tp-card-btn">Detail Layanan</a>
+                <a href="<?= base_url('front/detail_layanan.php?id=' . $layanan['id_layanan']) ?>"
+                  class="tp-card-btn">Detail Layanan</a>
               </div>
             </article>
-          <?php
+            <?php
           }
         }
 
         // Jika tidak ada layanan sama sekali
-        if ($total_layanan == 0) :
+        if ($total_layanan == 0):
           ?>
           <div class="col-12">
             <div class="alert alert-info text-center" role="alert">
               <i class="icon-copy dw dw-information" style="font-size: 48px;"></i>
               <h4 class="alert-heading mt-3">Layanan Belum Tersedia</h4>
-              <p class="mb-0">Maaf, saat ini belum ada layanan yang tersedia. Silakan hubungi kami untuk informasi lebih lanjut.</p>
+              <p class="mb-0">Maaf, saat ini belum ada layanan yang tersedia. Silakan hubungi kami untuk informasi lebih
+                lanjut.</p>
             </div>
           </div>
         <?php endif; ?>
@@ -705,7 +706,8 @@ if (session_status() === PHP_SESSION_NONE) {
 
               <!-- IMAGE -->
               <div class="timeline-image-wrapper">
-                <img src="<?= base_url('public/img/hero/hero1.jpeg') ?>" alt="Konsultasi dan pengukuran" loading="lazy" />
+                <img src="<?= base_url('public/img/hero/hero1.jpeg') ?>" alt="Konsultasi dan pengukuran"
+                  loading="lazy" />
               </div>
             </div>
           </div>
@@ -723,7 +725,8 @@ if (session_status() === PHP_SESSION_NONE) {
               </div>
               <!-- IMAGE -->
               <div class="timeline-image-wrapper">
-                <img src="<?= base_url('public/img/hero/hero2.jpeg') ?>" alt="Konsultasi dan pengukuran" loading="lazy" />
+                <img src="<?= base_url('public/img/hero/hero2.jpeg') ?>" alt="Konsultasi dan pengukuran"
+                  loading="lazy" />
               </div>
             </div>
 
@@ -759,7 +762,8 @@ if (session_status() === PHP_SESSION_NONE) {
               </div>
               <!-- IMAGE -->
               <div class="timeline-image-wrapper">
-                <img src="<?= base_url('public/img/hero/hero3.jpeg') ?>" alt="Konsultasi dan pengukuran" loading="lazy" />
+                <img src="<?= base_url('public/img/hero/hero3.jpeg') ?>" alt="Konsultasi dan pengukuran"
+                  loading="lazy" />
               </div>
             </div>
           </div>
@@ -777,7 +781,8 @@ if (session_status() === PHP_SESSION_NONE) {
               </div>
               <!-- IMAGE -->
               <div class="timeline-image-wrapper">
-                <img src="<?= base_url('public/img/hero/hero1.jpeg') ?>" alt="Konsultasi dan pengukuran" loading="lazy" />
+                <img src="<?= base_url('public/img/hero/hero1.jpeg') ?>" alt="Konsultasi dan pengukuran"
+                  loading="lazy" />
               </div>
             </div>
 
@@ -811,7 +816,8 @@ if (session_status() === PHP_SESSION_NONE) {
               </div>
               <!-- IMAGE -->
               <div class="timeline-image-wrapper">
-                <img src="<?= base_url('public/img/hero/hero2.jpeg') ?>" alt="Konsultasi dan pengukuran" loading="lazy" />
+                <img src="<?= base_url('public/img/hero/hero2.jpeg') ?>" alt="Konsultasi dan pengukuran"
+                  loading="lazy" />
               </div>
             </div>
           </div>
@@ -857,28 +863,24 @@ if (session_status() === PHP_SESSION_NONE) {
     </div>
   </section>
 
-  <!-- Popup Chat Pelanggan -->
-  <?php if (!empty($_SESSION['login']) && ($_SESSION['role'] ?? '') === 'pelanggan') : ?>
-    <div id="chatPopup" class="chat-popup">
-      <div class="chat-header">
-        <span>Chat dengan Penjahit</span>
-        <button type="button" class="chat-close" onclick="closeChatPopup()">×</button>
-      </div>
-      <div id="chatMessages" class="chat-messages">
-        <!-- Pesan dimuat via AJAX -->
-      </div>
-      <form id="chatForm" class="chat-form">
-        <input type="text" id="chatInput" placeholder="Tulis pesan..." autocomplete="off" required />
-        <button type="submit">Kirim</button>
-      </form>
+  <!-- Popup Chat Pelanggan (AI Assistant) -->
+  <div id="chatPopup" class="chat-popup">
+    <div class="chat-header">
+      <span><i class="fas fa-robot"></i> Asisten AI Jadimulya</span>
+      <button type="button" class="close-btn" onclick="closeChatPopup()">&times;</button>
     </div>
-  <?php endif; ?>
+    <div id="chatMessages" class="chat-messages">
+      <!-- Pesan dimuat via AJAX -->
+    </div>
+    <form id="chatForm" class="chat-form">
+      <input type="text" id="chatInput" placeholder="Tulis pesan..." autocomplete="off" required />
+      <button type="submit">Kirim</button>
+    </form>
+  </div>
 
   <!-- WHATSAPP FLOAT GOLDEN -->
-  <a href="https://wa.me/6285720301295?text=Halo%20saya%20ingin%20konsultasi%20jasa%20jahit"
-    class="wa-golden"
-    target="_blank"
-    aria-label="Chat WhatsApp Ja sa Jahit">
+  <a href="https://wa.me/6285720301295?text=Halo%20saya%20ingin%20konsultasi%20jasa%20jahit" class="wa-golden"
+    target="_blank" aria-label="Chat WhatsApp Ja sa Jahit">
     <i class="fab fa-whatsapp"></i>
   </a>
 
@@ -994,11 +996,8 @@ if (session_status() === PHP_SESSION_NONE) {
 
         <!-- RIGHT : MAP -->
         <div class="map-card">
-          <iframe
-            src="https://www.google.com/maps?q=-6.689232,108.550924&z=17&output=embed"
-            allowfullscreen
-            loading="lazy"
-            referrerpolicy="no-referrer-when-downgrade">
+          <iframe src="https://www.google.com/maps?q=-6.689232,108.550924&z=17&output=embed" allowfullscreen
+            loading="lazy" referrerpolicy="no-referrer-when-downgrade">
           </iframe>
           <div class="map-info">
             <h4>📍 Lokasi Toko Jahit Jadimulya</h4>
@@ -1039,7 +1038,8 @@ if (session_status() === PHP_SESSION_NONE) {
 
         <!-- CONTACT -->
         <div class="footer-contact">
-          <p>Jl. Gunung Jati Gg. Mushollah, Desa Jadimulya, RT 02/RW 01, Kecamatan Gunung Jati, Kabupaten Cirebon, Provinsi Jawa Barat</p>
+          <p>Jl. Gunung Jati Gg. Mushollah, Desa Jadimulya, RT 02/RW 01, Kecamatan Gunung Jati, Kabupaten Cirebon,
+            Provinsi Jawa Barat</p>
           <p>WhatsApp: +62 896-8250-6082</p>
           <p>Email: aldivamuhammad@gmail.com</p>
           <p>Jam Operasional: Senin – Sabtu, 09.00 – 18.00</p>
@@ -1076,15 +1076,27 @@ if (session_status() === PHP_SESSION_NONE) {
   </button>
 
   <script>
-    let chatPollingInterval = null;
+    function appendMessage(text, sender) {
+      const container = document.getElementById('chatMessages');
+      if (!container) return;
+      const div = document.createElement('div');
+      div.className = 'chat-message ' + (sender === 'user' ? 'you' : 'admin');
+      div.innerHTML = text; // Allow HTML from markdown parsing
+      container.appendChild(div);
+      container.scrollTop = container.scrollHeight;
+    }
+
+    // Flag for initial message
+    let chatOpened = false;
 
     function openChatPopup() {
       const popup = document.getElementById('chatPopup');
       if (!popup) return;
       popup.classList.add('open');
-      loadChatMessages();
-      if (!chatPollingInterval) {
-        chatPollingInterval = setInterval(loadChatMessages, 3000);
+      
+      if (!chatOpened) {
+        appendMessage('Halo! Saya Asisten AI Jadimulya Jasa Jahit 🤖.<br>Ada yang bisa saya bantu terkait layanan jahit kami?', 'admin');
+        chatOpened = true;
       }
     }
 
@@ -1092,65 +1104,57 @@ if (session_status() === PHP_SESSION_NONE) {
       const popup = document.getElementById('chatPopup');
       if (!popup) return;
       popup.classList.remove('open');
-      if (chatPollingInterval) {
-        clearInterval(chatPollingInterval);
-        chatPollingInterval = null;
-      }
     }
 
-    function appendMessages(messages) {
-      const container = document.getElementById('chatMessages');
-      if (!container) return;
-      container.innerHTML = '';
-      messages.forEach(function(m) {
-        const div = document.createElement('div');
-        div.className = 'chat-message ' + (m.sender === 'pelanggan' ? 'you' : 'admin');
-        div.textContent = m.message;
-        container.appendChild(div);
-      });
-      container.scrollTop = container.scrollHeight;
-    }
-
-    function loadChatMessages() {
-      fetch('<?= base_url('pelanggan/chat_get.php') ?>')
-        .then(function(r) {
-          return r.json();
-        })
-        .then(function(data) {
-          if (data.success) {
-            appendMessages(data.messages);
-          }
-        })
-        .catch(function() {});
-    }
-
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
       const form = document.getElementById('chatForm');
       if (!form) return;
 
-      form.addEventListener('submit', function(e) {
+      form.addEventListener('submit', function (e) {
         e.preventDefault();
         const input = document.getElementById('chatInput');
         const text = input.value.trim();
         if (!text) return;
 
-        fetch('<?= base_url('pelanggan/chat_send.php') ?>', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            body: 'message=' + encodeURIComponent(text)
-          })
-          .then(function(r) {
+        // Tampilkan pesan user
+        appendMessage(text, 'user');
+        input.value = '';
+
+        // Tampilkan indikator mengetik
+        const container = document.getElementById('chatMessages');
+        const loadingDiv = document.createElement('div');
+        loadingDiv.className = 'chat-message admin loading-indicator';
+        loadingDiv.innerHTML = '<em>AI sedang mengetik...</em>';
+        container.appendChild(loadingDiv);
+        container.scrollTop = container.scrollHeight;
+
+        fetch('<?= base_url('chatbot/reply') ?>', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          },
+          body: 'message=' + encodeURIComponent(text)
+        })
+          .then(function (r) {
             return r.json();
           })
-          .then(function(data) {
+          .then(function (data) {
+            // Hapus indikator
+            if (container.contains(loadingDiv)) {
+              container.removeChild(loadingDiv);
+            }
             if (data.success) {
-              input.value = '';
-              loadChatMessages();
+              appendMessage(data.reply, 'admin');
+            } else {
+              appendMessage(data.reply || 'Maaf, saya sedang mengalami gangguan 😔', 'admin');
             }
           })
-          .catch(function() {});
+          .catch(function () { 
+            if (container.contains(loadingDiv)) {
+              container.removeChild(loadingDiv);
+            }
+            appendMessage('Koneksi terputus. Coba lagi nanti ya.', 'admin');
+          });
       });
     });
   </script>
@@ -1161,7 +1165,7 @@ if (session_status() === PHP_SESSION_NONE) {
     }
 
     // klik di luar → menu menutup
-    document.addEventListener('click', function(e) {
+    document.addEventListener('click', function (e) {
       const action = document.querySelector('.user-action');
       if (!action.contains(e.target)) {
         document.querySelector('.user-menu')?.classList.remove('active');
@@ -1170,14 +1174,14 @@ if (session_status() === PHP_SESSION_NONE) {
   </script>
 
   <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
       const filters = document.querySelectorAll('.tp-filter');
       const cards = document.querySelectorAll('.tp-card');
       const grid = document.getElementById('programGrid');
       const emptyState = document.getElementById('emptyState');
 
       filters.forEach(filter => {
-        filter.addEventListener('click', function() {
+        filter.addEventListener('click', function () {
           const filterValue = this.getAttribute('data-filter');
 
           // Update active state
@@ -1220,7 +1224,7 @@ if (session_status() === PHP_SESSION_NONE) {
   </script>
 
   <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
       const filters = document.querySelectorAll('.tp-filter');
       const cards = document.querySelectorAll('.tp-card');
       const grid = document.getElementById('programGrid');
@@ -1228,7 +1232,7 @@ if (session_status() === PHP_SESSION_NONE) {
       const introText = document.getElementById('introText');
 
       filters.forEach(filter => {
-        filter.addEventListener('click', function() {
+        filter.addEventListener('click', function () {
           const filterValue = this.getAttribute('data-filter');
 
           // Update active state
@@ -1288,7 +1292,7 @@ if (session_status() === PHP_SESSION_NONE) {
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <!-- Alert Berhasil -->
-  <?php if (isset($_SESSION['berhasil'])) : ?>
+  <?php if (isset($_SESSION['berhasil'])): ?>
     <script>
       const Berhasil = Swal.mixin({
         toast: true,
