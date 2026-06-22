@@ -1,103 +1,252 @@
 <?php
 require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../core/Controller.php';
+require_once __DIR__ . '/../models/Layanan.php';
 
-class ChatbotController extends Controller {
-    
-    // API Key Hugging Face Anda
-    private $apiKey = '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'; 
-    // Model yang lebih kecil, stabil, dan cepat (selalu aktif di HuggingFace)
-    private $modelId = 'Qwen/Qwen2.5-7B-Instruct';
+class ChatbotController extends Controller
+{
+    private const HF_ROUTER_ENDPOINT = 'https://router.huggingface.co/v1/chat/completions';
+    private const HF_LEGACY_ENDPOINT = 'https://api-inference.huggingface.co/models/%s/v1/chat/completions';
+    private const DEFAULT_MODEL = 'Qwen/Qwen2.5-7B-Instruct';
+    private const WHATSAPP = '+62 896-8250-6082';
+    private const WHATSAPP_LINK = 'https://wa.me/6289682506082';
+    private const ADDRESS = 'Jl. Gunung Jati Gg. Mushollah, Desa Jadimulya, RT 02/RW 01, Kab. Cirebon';
+    private const HOURS = 'Senin - Sabtu, pukul 09.00 - 18.00';
 
-    public function reply() {
-        header('Content-Type: application/json');
-        
+    public function reply(): void
+    {
+        header('Content-Type: application/json; charset=utf-8');
+
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            echo json_encode(['success' => false, 'reply' => 'Metode request tidak valid.']);
-            exit;
+            $this->sendReply(false, 'Metode request tidak valid.');
         }
 
-        $userMessage = $_POST['message'] ?? '';
-        
-        if (empty($userMessage)) {
-            echo json_encode(['success' => false, 'reply' => 'Pesan tidak boleh kosong.']);
-            exit;
+        $userMessage = trim((string) ($_POST['message'] ?? ''));
+        if ($userMessage === '') {
+            $this->sendReply(false, 'Pesan tidak boleh kosong.');
         }
 
-        // Prompt sistem agar AI memiliki persona sebagai Customer Service Toko Anda
-        $systemPrompt = "Anda adalah Asisten Virtual AI yang ramah, profesional, dan cerdas untuk 'Jadimulya Jasa Jahit'. 
-Tugas utama Anda adalah menjawab pertanyaan pelanggan terkait layanan jahit.
-Berikut adalah informasi toko yang harus Anda pedomani:
-- Lokasi: Jl. Gunung Jati Gg. Mushollah, Desa Jadimulya, RT 02/RW 01, Kab. Cirebon.
-- Kontak Manual: WhatsApp +62 896-8250-6082 (untuk pemesanan spesifik).
-- Jam Operasional: Senin - Sabtu, Pukul 09.00 - 18.00.
-- Contoh Layanan & Harga Mulai: Jahit Biasa (Rp 50.000), Permak Celana (Rp 85.000), Seragam Formal (Rp 30.000), Jahit Pakaian Harian (Rp 25.000).
-Aturan menjawab:
-1. Jawab dengan bahasa Indonesia yang ramah, tidak kaku, dan sopan. Gunakan emoji secukupnya.
-2. Jangan terlalu panjang, berikan jawaban yang padat dan jelas.
-3. Jika pelanggan bertanya hal di luar konteks jasa jahit baju/pakaian, tolak dengan halus dan katakan Anda hanya bisa membantu seputar Jasa Jahit Jadimulya.
-4. Jika pelanggan ingin memesan atau memberikan detail ukuran yang rumit, arahkan menghubungi WhatsApp.";
+        if ($this->getApiKey() === '') {
+            $this->sendReply(false, 'Token Hugging Face belum diisi. Isi HUGGINGFACE_API_KEY di app/config/config.php atau set environment variable HF_TOKEN.');
+        }
 
-        // Format data menggunakan standar OpenAI (HuggingFace Messages API)
-        $data = [
-            "model" => $this->modelId,
-            "messages" => [
-                [
-                    "role" => "system",
-                    "content" => $systemPrompt
-                ],
-                [
-                    "role" => "user",
-                    "content" => $userMessage
-                ]
-            ],
-            "max_tokens" => 500,
-            "temperature" => 0.6
+        $history = $this->parseHistory((string) ($_POST['history'] ?? '[]'));
+        $aiReply = $this->askHuggingFace($this->buildMessages($userMessage, $history));
+
+        if ($aiReply !== null) {
+            $this->sendReply(true, $aiReply, 'huggingface-qwen');
+        }
+
+        $this->sendReply(false, 'Maaf, Qwen Hugging Face belum bisa dihubungi. Silakan cek token Hugging Face/koneksi server, lalu coba lagi.');
+    }
+
+    private function askHuggingFace(array $messages): ?string
+    {
+        $apiKey = $this->getApiKey();
+        if ($apiKey === '') {
+            error_log('Hugging Face chatbot request skipped: API key is empty.');
+            return null;
+        }
+
+        $model = getenv('HF_MODEL') ?: self::DEFAULT_MODEL;
+        $payload = [
+            'model' => $model,
+            'messages' => $messages,
+            'max_tokens' => 450,
+            'temperature' => 0.55,
+            'top_p' => 0.9,
+            'stream' => false,
         ];
 
-        // URL Endpoint standar HuggingFace Inference API untuk Chat
-        $url = "https://api-inference.huggingface.co/models/" . $this->modelId . "/v1/chat/completions";
+        $reply = $this->requestHuggingFace(self::HF_ROUTER_ENDPOINT, $payload, $apiKey);
+        if ($reply !== null) {
+            return $reply;
+        }
 
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Content-Type: application/json',
-            'Authorization: Bearer ' . $this->apiKey
+        $encodedModel = str_replace('%2F', '/', rawurlencode($model));
+
+        return $this->requestHuggingFace(sprintf(self::HF_LEGACY_ENDPOINT, $encodedModel), $payload, $apiKey);
+    }
+
+    private function requestHuggingFace(string $endpoint, array $payload, string $apiKey): ?string
+    {
+        $ch = curl_init($endpoint);
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POST => true,
+            CURLOPT_HTTPHEADER => [
+                'Content-Type: application/json',
+                'Authorization: Bearer ' . $apiKey,
+            ],
+            CURLOPT_POSTFIELDS => json_encode($payload),
+            CURLOPT_CONNECTTIMEOUT => 10,
+            CURLOPT_TIMEOUT => 45,
+            CURLOPT_SSL_VERIFYPEER => false,
         ]);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-        
-        // FIX for Laragon/XAMPP local SSL issue
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        // Set timeout to 60 seconds because HuggingFace might need time to load the model (cold start)
-        curl_setopt($ch, CURLOPT_TIMEOUT, 60);
-        
+
         $response = curl_exec($ch);
-        $err = curl_error($ch);
+        $curlError = curl_error($ch);
+        $httpCode = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
 
-        if ($err) {
-            echo json_encode(['success' => false, 'reply' => 'Maaf, server AI sedang mengalami kendala jaringan. (cURL Error: ' . $err . ')']);
-            exit;
+        if ($response === false || $curlError !== '' || $httpCode < 200 || $httpCode >= 300) {
+            error_log('Hugging Face chatbot request failed. Endpoint: ' . $endpoint . '; HTTP: ' . $httpCode . '; cURL: ' . $curlError . '; body: ' . substr((string) $response, 0, 700));
+            return null;
         }
 
-        $responseData = json_decode($response, true);
-        
-        if (isset($responseData['choices'][0]['message']['content'])) {
-            $aiReply = $responseData['choices'][0]['message']['content'];
-            
-            // Format basic markdown to HTML for bolding
-            $aiReply = preg_replace('/\*\*(.*?)\*\*/', '<strong>$1</strong>', $aiReply);
-            $aiReply = preg_replace('/\*(.*?)\*/', '<em>$1</em>', $aiReply);
-            
-            echo json_encode(['success' => true, 'reply' => nl2br(trim($aiReply))]);
-        } else {
-            // Tampilkan error dari HuggingFace jika ada
-            $errorMsg = $responseData['error'] ?? 'Respons dari HuggingFace tidak dikenali.';
-            if (is_array($errorMsg)) {
-                $errorMsg = json_encode($errorMsg);
+        $data = json_decode((string) $response, true);
+        $reply = $data['choices'][0]['message']['content'] ?? null;
+
+        return is_string($reply) && trim($reply) !== '' ? trim($reply) : null;
+    }
+
+    private function buildMessages(string $userMessage, array $history): array
+    {
+        $messages = [
+            [
+                'role' => 'system',
+                'content' => $this->systemPrompt(),
+            ],
+        ];
+
+        foreach (array_slice($history, -8) as $item) {
+            $content = trim((string) ($item['content'] ?? ''));
+            if ($content === '') {
+                continue;
             }
-            echo json_encode(['success' => false, 'reply' => 'Maaf, server AI sedang sibuk. Error: ' . $errorMsg]);
+
+            $messages[] = [
+                'role' => ($item['role'] ?? '') === 'assistant' ? 'assistant' : 'user',
+                'content' => substr($content, 0, 800),
+            ];
         }
+
+        $messages[] = [
+            'role' => 'user',
+            'content' => $userMessage,
+        ];
+
+        return $messages;
+    }
+
+    private function systemPrompt(): string
+    {
+        return "Anda adalah Asisten AI customer service untuk Jadimulya Jasa Jahit.
+Jawab dalam bahasa Indonesia yang ramah, sopan, natural, dan singkat.
+Fokus hanya pada layanan jahit, permak, seragam, pakaian harian, harga, estimasi, alamat, jam buka, dan pemesanan.
+Jika pelanggan bertanya di luar konteks jasa jahit, arahkan kembali dengan halus.
+
+Informasi toko:
+- Alamat: " . self::ADDRESS . "
+- WhatsApp: " . self::WHATSAPP . "
+- Link WhatsApp: " . self::WHATSAPP_LINK . "
+- Jam operasional: " . self::HOURS . "
+
+Daftar layanan aktif:
+" . $this->serviceContext() . "
+
+Aturan:
+- Harga adalah harga mulai dan bisa berubah sesuai model, bahan, ukuran, serta tingkat kesulitan.
+- Jangan menampilkan error teknis.
+- Untuk pemesanan final atau detail ukuran, arahkan ke WhatsApp.";
+    }
+
+    private function serviceContext(): string
+    {
+        $lines = [];
+        foreach ($this->getServices() as $service) {
+            $line = '- ' . $service['name'] . ': mulai ' . $this->formatRupiah((int) $service['price']);
+            if ($service['estimate'] !== '') {
+                $line .= ', estimasi ' . $this->formatEstimate($service['estimate']);
+            }
+            if ($service['category'] !== '') {
+                $line .= ', kategori ' . $service['category'];
+            }
+            $lines[] = $line;
+        }
+
+        return implode("\n", $lines);
+    }
+
+    private function getServices(): array
+    {
+        try {
+            $serviceModel = new Layanan($this->db);
+            $rows = $serviceModel->getActiveLayananWithKategori();
+        } catch (Throwable $e) {
+            $rows = [];
+        }
+
+        $services = [];
+        foreach ($rows as $row) {
+            $services[] = [
+                'name' => (string) ($row->nama_layanan ?? ''),
+                'price' => (int) ($row->harga_mulai ?? 0),
+                'estimate' => (string) ($row->estimasi_hari ?? ''),
+                'category' => (string) ($row->nama_kategori ?? ''),
+            ];
+        }
+
+        return $services ?: [
+            ['name' => 'Jahit Biasa', 'price' => 50000, 'estimate' => '3-7', 'category' => 'Jahit'],
+            ['name' => 'Permak Celana', 'price' => 85000, 'estimate' => '1-3', 'category' => 'Permak'],
+            ['name' => 'Seragam Formal', 'price' => 30000, 'estimate' => '3-7', 'category' => 'Seragam'],
+            ['name' => 'Jahit Pakaian Harian', 'price' => 25000, 'estimate' => '2-5', 'category' => 'Jahit'],
+        ];
+    }
+
+    private function parseHistory(string $historyJson): array
+    {
+        $decoded = json_decode($historyJson, true);
+        if (!is_array($decoded)) {
+            return [];
+        }
+
+        $history = [];
+        foreach ($decoded as $item) {
+            if (!is_array($item)) {
+                continue;
+            }
+
+            $role = (string) ($item['role'] ?? '');
+            $content = trim((string) ($item['content'] ?? ''));
+            if (in_array($role, ['user', 'assistant'], true) && $content !== '') {
+                $history[] = ['role' => $role, 'content' => $content];
+            }
+        }
+
+        return $history;
+    }
+
+    private function getApiKey(): string
+    {
+        $configuredToken = defined('HUGGINGFACE_API_KEY') ? HUGGINGFACE_API_KEY : '';
+
+        return trim((string) ($configuredToken ?: getenv('HF_TOKEN') ?: getenv('HUGGINGFACE_API_KEY')));
+    }
+
+    private function formatRupiah(int $amount): string
+    {
+        return $amount > 0 ? 'Rp ' . number_format($amount, 0, ',', '.') : 'harga menyesuaikan';
+    }
+
+    private function formatEstimate(string $estimate): string
+    {
+        $estimate = trim($estimate);
+        if ($estimate === '') {
+            return 'menyesuaikan pesanan';
+        }
+
+        return preg_match('/hari/i', $estimate) ? $estimate : $estimate . ' hari kerja';
+    }
+
+    private function sendReply(bool $success, string $reply, string $source = 'system'): void
+    {
+        echo json_encode([
+            'success' => $success,
+            'source' => $source,
+            'reply' => nl2br(htmlspecialchars($reply, ENT_QUOTES, 'UTF-8')),
+        ]);
+        exit;
     }
 }

@@ -2190,9 +2190,43 @@ body {
 }
 
 /* ================= FLOATING WHATSAPP ================= */
+.ai-golden {
+  position: fixed;
+  bottom: 96px;
+  left: 26px;
+  right: auto;
+  width: 58px;
+  min-width: 0;
+  height: 54px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #1c120b, #8B5A2B 48%, #D4A373);
+  color: #fff7df;
+  font-size: 15px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  box-shadow: 0 12px 28px rgba(0,0,0,0.35);
+  z-index: 10001;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.ai-golden i {
+  font-size: 22px;
+}
+
+.ai-golden:hover {
+  transform: scale(1.08);
+  box-shadow: 0 14px 32px rgba(0,0,0,0.45);
+}
+
 .wa-golden {
   position: fixed;
-  bottom: 26px;
+  bottom: 96px;
   right: 26px;
   width: 58px;
   height: 58px;
@@ -2217,7 +2251,7 @@ body {
 /* ================= BACK TO TOP ================= */
 .back-to-top {
   position: fixed;
-  bottom: 100px;
+  bottom: 168px;
   right: 26px;
   width: 54px;
   height: 54px;
@@ -2251,13 +2285,24 @@ body {
 
 /* ================= MOBILE ================= */
 @media (max-width: 560px) {
+  .ai-golden {
+    min-width: 0;
+    width: 56px;
+    height: 50px;
+    padding: 0;
+    left: 18px;
+    right: auto;
+    bottom: 86px;
+    font-size: 14px;
+  }
+
   .wa-golden {
-    bottom: 20px;
+    bottom: 86px;
     right: 18px;
   }
 
   .back-to-top {
-    bottom: 88px;
+    bottom: 154px;
     right: 18px;
   }
 }
