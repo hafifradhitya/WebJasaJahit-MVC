@@ -23,6 +23,24 @@ document.addEventListener("DOMContentLoaded", function () {
       year: "numeric",
     });
 
+    // Ambil detail tambahan jika pelanggan menggunakan fitur estimasi
+    const calcBahan = document.getElementById("calcBahan");
+    const calcKerumitan = document.getElementById("calcKerumitan");
+    const calcTotal = document.getElementById("calcTotal");
+
+    let teksKalkulator = "";
+    if (calcBahan && calcKerumitan && calcTotal) {
+      const txtBahan = calcBahan.options[calcBahan.selectedIndex].text;
+      const txtKerumitan = calcKerumitan.options[calcKerumitan.selectedIndex].text;
+      const totalEstimasi = calcTotal.textContent;
+
+      teksKalkulator = 
+        "Rincian Preferensi Tambahan:\n" +
+        `- Ketersediaan Bahan: ${txtBahan}\n` +
+        `- Tingkat Kerumitan: ${txtKerumitan}\n` +
+        `Estimasi Biaya Total: ${totalEstimasi}\n\n`;
+    }
+
     const pesan =
       "Halo, saya ingin memesan jasa jahit.\n\n" +
       "Data Pemesan:\n" +
@@ -33,9 +51,10 @@ document.addEventListener("DOMContentLoaded", function () {
       `Nama Layanan : ${namaLayanan}\n` +
       `Kategori : ${kategori}\n` +
       `Estimasi Waktu : ${estimasi}\n` +
-      `Harga Mulai : Rp ${hargaMulai}\n` +
+      `Harga Mulai (Sistem) : Rp ${hargaMulai}\n` +
       `Tanggal Pesan : ${tanggalPesan}\n` +
       "Status Pesanan : menunggu\n\n" +
+      teksKalkulator +
       "Silakan saya akan mengisi data berikut:\n" +
       "Ukuran Pakaian (Custom/S-XXXL Anak Anak, S-XXXL Dewasa) : \n\n" +
       "Jika memilih Custom, mohon isi ukuran berikut.\n" +

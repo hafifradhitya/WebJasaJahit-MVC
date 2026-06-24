@@ -16,6 +16,10 @@ $router->get('/auth/logout', 'LogoutController@logout');
 
 // Chatbot Route
 $router->post('/chatbot/reply', 'ChatbotController@reply');
+
+// Tracking Routes
+$router->get('/lacak', 'TrackingController@index');
+$router->post('/lacak/search', 'TrackingController@search');
 $router->get('/auth/logout.php', 'LogoutController@logout');
 
 // Admin Routes

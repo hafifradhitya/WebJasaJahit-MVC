@@ -86,6 +86,25 @@ class Pesanan {
         return $this->db->single();
     }
 
+    public function getPesananByPhoneOrId($keyword) {
+        $this->db->query("
+            SELECT 
+                pesanan.*,
+                users.nama_lengkap,
+                users.no_telepon,
+                layanan.nama_layanan,
+                layanan.harga_mulai,
+                layanan.estimasi_hari
+            FROM pesanan 
+            JOIN users ON users.id_user = pesanan.id_user
+            JOIN layanan ON layanan.id_layanan = pesanan.id_layanan
+            WHERE pesanan.id_pesanan = :keyword OR users.no_telepon = :keyword
+            ORDER BY pesanan.id_pesanan DESC
+        ");
+        $this->db->bind('keyword', $keyword);
+        return $this->db->resultSet();
+    }
+
     public function insert($data) {
         $this->db->query("
             INSERT INTO pesanan 

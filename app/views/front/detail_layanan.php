@@ -1,210 +1,9 @@
-<!DOCTYPE html>
-<html lang="id">
-
-<head>
-    <meta charset="UTF-8" />
-    <title><?= htmlspecialchars($layanan['nama_layanan'] ?? '') ?> | Jasa Jahit Premium</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="<?= htmlspecialchars($layanan['deskripsi'] ?? '') ?>">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-    <link rel="stylesheet" href="<?= base_url('public/css/detail-layanan.css') ?>">
-
-    <style>
-        /* ===== USER DROPDOWN (ISOLATED) ===== */
-        .user-action {
-            position: relative;
-            margin-left: 20px;
-        }
-
-        .user-profile {
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
-            overflow: hidden;
-            cursor: pointer;
-        }
-
-        .user-profile img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        /* Dropdown box */
-        .user-menu {
-            position: absolute;
-            top: 60px;
-            right: 0;
-            width: 200px;
-            background: #fff;
-            border-radius: 12px;
-            padding: 10px 15px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-            opacity: 0;
-            visibility: hidden;
-            transition: 0.3s ease;
-            z-index: 999;
-        }
-
-        .user-menu.active {
-            opacity: 1;
-            visibility: visible;
-            top: 50px;
-        }
-
-        /* KHUSUS dropdown */
-        .user-menu h3 {
-            text-align: center;
-            font-size: 16px;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 10px;
-        }
-
-        .user-menu h3 span {
-            font-size: 13px;
-            color: #999;
-            font-weight: 400;
-        }
-
-        .user-menu ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .user-menu ul li {
-            display: flex;
-            align-items: center;
-            padding: 8px 0;
-            border-top: 1px solid #eee;
-        }
-
-        .user-menu ul li i {
-            width: 20px;
-            color: #999;
-            margin-right: 8px;
-        }
-
-        .user-menu ul li a {
-            text-decoration: none;
-            color: #444;
-            font-size: 14px;
-        }
-
-        .user-menu ul li:hover a {
-            color: #b68d40;
-        }
-    </style>
-</head>
-
-<body>
-
-    <div class="top-header">
-        <div class="container">
-            <nav class="top-nav">
-                <span>📍 Gg. Mushollah, Desa Jadimulya</span>
-                <span>|</span>
-                <span>⏰ Senin–Sabtu 08.00–17.00</span>
-                <span>|</span>
-                <span>📞 089682506082</span>
-            </nav>
-        </div>
-    </div>
-
-
-    <!-- Main Header -->
-    <header class="main-header">
-        <div class="container">
-            <div class="logo">
-                <a href="<?= base_url('front/beranda.php') ?>">
-                    <img src="<?= base_url('public/img/logo/logo-jasa-jahit.png') ?>" alt="Jasa Jahit Premium" />
-                </a>
-            </div>
-
-            <nav class="main-nav">
-                <a href="<?= base_url('#beranda') ?>">Beranda</a>
-                <a href="<?= base_url('#tentang-jasa') ?>">Tentang Kami</a>
-                <a href="<?= base_url('#jasa') ?>">Layanan</a>
-                <a href="<?= base_url('#process') ?>">Proses</a>
-                <a href="<?= base_url('#process-gallery') ?>">Galeri</a>
-                <!-- LOGIN BUTTON -->
-
-
-                <?php if (!empty($_SESSION['login'])): ?>
-                    <div class="user-action">
-                        <div class="user-profile" onclick="userMenuToggle()">
-                            <img src="<?= base_url('public/img/foto_pelanggan/' . ($_SESSION['foto'] ?? 'default.jpg')) ?>"
-                                alt="Foto">
-                        </div>
-
-                        <div class="user-menu">
-                            <h3>
-                                <?= htmlspecialchars($_SESSION['nama_lengkap'] ?? ''); ?><br>
-                                <span><?= htmlspecialchars($_SESSION['role'] ?? ''); ?></span>
-                            </h3>
-                            <ul>
-                                <li><i class="fas fa-user"></i><a
-                                        href="<?= base_url('pelanggan/fitur_lainnya/profile.php') ?>">Profil</a></li>
-                                <li><i class="fas fa-chart-line"></i><a
-                                        href="<?= base_url('pelanggan/dashboard/dashboard.php') ?>">Dashboard</a></li>
-                                <li><i class="fas fa-sign-out-alt"></i><a
-                                        href="<?= base_url('auth/logout.php') ?>">Logout</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                <?php endif; ?>
-
-            </nav>
-
-            <!-- Burger Menu Button -->
-            <button class="burger-menu" id="burgerMenu" aria-label="Toggle Menu">
-                <span></span>
-                <span></span>
-                <span></span>
-            </button>
-        </div>
-    </header>
-
-    <!-- Mobile Menu Overlay -->
-    <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
-
-    <!-- Mobile Menu Sidebar -->
-    <nav class="mobile-menu" id="mobileMenu">
-        <button class="mobile-menu-close" id="mobileMenuClose" aria-label="Close Menu">
-            <i class="fas fa-times"></i>
-        </button>
-        <div class="mobile-menu-content">
-            <a href="<?= base_url('#beranda') ?>" class="mobile-menu-link">Beranda</a>
-            <a href="<?= base_url('#tentang-jasa') ?>" class="mobile-menu-link">Tentang Kami</a>
-            <a href="<?= base_url('#jasa') ?>" class="mobile-menu-link">Layanan</a>
-            <a href="<?= base_url('#process') ?>" class="mobile-menu-link">Proses</a>
-            <a href="<?= base_url('#process-gallery') ?>" class="mobile-menu-link">Galeri</a>
-
-            <div class="mobile-menu-divider"></div>
-            <?php if (!empty($_SESSION['login'])): ?>
-                <!-- USER LOGIN -->
-                <div class="mobile-user-info">
-                    <img src="<?= base_url('public/img/foto_pelanggan/' . ($_SESSION['foto'] ?? 'default.jpg')) ?>"
-                        alt="Foto User" class="mobile-user-avatar">
-                    <div class="mobile-user-text">
-                        <strong><?= htmlspecialchars($_SESSION['nama_lengkap'] ?? ''); ?></strong><br>
-                        <span><?= htmlspecialchars($_SESSION['role'] ?? ''); ?></span>
-                    </div>
-                </div>
-
-                <a href="<?= base_url('pelanggan/fitur_lainnya/profile.php') ?>" class="mobile-menu-link secondary">
-                    <i class="fas fa-user"></i> Profil
-                </a>
-                <a href="<?= base_url('pelanggan/dashboard/dashboard.php') ?>" class="mobile-menu-link secondary">
-                    <i class="fas fa-chart-line"></i> Dashboard
-                </a>
-                <a href="<?= base_url('auth/logout.php') ?>" class="mobile-menu-link secondary danger">
-                    <i class="fas fa-sign-out-alt"></i> Logout
-                </a>
-            <?php endif; ?>
-        </div>
-    </nav>
+<?php
+$judul = htmlspecialchars($layanan['nama_layanan'] ?? '') . ' | Jasa Jahit Premium';
+$extra_css = '<link rel="stylesheet" href="' . base_url('public/css/detail-layanan.css') . '">' . "\n" .
+             '<link rel="stylesheet" href="' . base_url('public/css/kalkulator.css') . '">';
+require_once __DIR__ . '/../layouts/header.php';
+?>
 
     <!-- ================= HERO DETAIL ================= -->
     <section class="detail-hero">
@@ -219,7 +18,6 @@
             <a href="#detail" class="btn-gold">Lihat Detail</a>
         </div>
     </section>
-
 
     <!-- ================= DETAIL LAYANAN ================= -->
     <section class="detail-section" id="detail">
@@ -248,7 +46,6 @@
                     <?php endif; ?>
 
                     <?php
-                    // Jika tidak ada fitur sama sekali, tampilkan default
                     if (
                         empty($layanan['fitur_1']) && empty($layanan['fitur_2']) &&
                         empty($layanan['fitur_3']) && empty($layanan['fitur_4'])
@@ -270,24 +67,57 @@
                     <strong><?= htmlspecialchars($layanan['nama_kategori'] ?? '') ?></strong>
                 </div>
 
-                <div class="info-row">
+                <div class="info-row" style="margin-bottom: 15px;">
                     <span>Estimasi Waktu</span>
                     <strong><?= htmlspecialchars($layanan['estimasi_hari'] ?? '') ?></strong>
                 </div>
 
-                <div class="info-row">
-                    <span>Harga Mulai</span>
-                    <strong>Rp <?= number_format($layanan['harga_mulai'] ?? 0, 0, ',', '.') ?></strong>
+                <style>
+                    .premium-select-wrapper { position: relative; margin-bottom: 12px; }
+                    .premium-select-label { display:flex; align-items:center; gap:6px; font-size:12px; color:#ecad29; margin-bottom:6px; font-weight: 500; }
+                    .premium-select { appearance:none; -webkit-appearance:none; width:100%; padding:10px 35px 10px 15px; background:rgba(20, 15, 5, 0.8); border:1px solid rgba(236,173,41,0.3); color:#fff; border-radius:6px; font-size: 13px; outline:none; transition: all 0.3s ease; cursor:pointer; box-shadow: inset 0 2px 4px rgba(0,0,0,0.5); font-family: inherit; }
+                    .premium-select:focus { border-color:#ecad29; box-shadow:0 0 8px rgba(236,173,41,0.3), inset 0 2px 4px rgba(0,0,0,0.5); }
+                    .premium-select option { background: #1a150e; color: #fff; }
+                    .premium-select-icon { position:absolute; right:15px; top:35px; color:#ecad29; font-size:12px; pointer-events:none; }
+                </style>
+
+                <div class="premium-select-wrapper">
+                    <label for="calcBahan" class="premium-select-label"><i class="fas fa-scroll"></i> Ketersediaan Bahan</label>
+                    <select id="calcBahan" class="premium-select">
+                    <option value="0">Bawa Bahan Sendiri</option>
+                    <option value="50000">Bahan Standar (Disediakan)</option>
+                    <option value="150000">Bahan Premium (Disediakan)</option>
+                    </select>
+                    <i class="fas fa-chevron-down premium-select-icon"></i>
                 </div>
+
+                <div class="premium-select-wrapper" style="margin-bottom: 20px;">
+                    <label for="calcKerumitan" class="premium-select-label"><i class="fas fa-gem"></i> Tingkat Kerumitan</label>
+                    <select id="calcKerumitan" class="premium-select">
+                    <option value="0">Standar (Tanpa Payet)</option>
+                    <option value="50000">Bordir / Payet Ringan</option>
+                    <option value="100000">Payet Sedang</option>
+                    <option value="200000">Payet Full / Custom</option>
+                    </select>
+                    <i class="fas fa-chevron-down premium-select-icon"></i>
+                </div>
+
+                <div class="info-row" style="background: rgba(236,173,41,0.1); padding: 12px; border-radius: 8px; border: 1px solid rgba(236,173,41,0.2); margin-bottom: 10px;">
+                    <span style="color: #ecad29; font-size: 13px;">Estimasi Total</span>
+                    <strong id="calcTotal" data-base-price="<?= $layanan['harga_mulai'] ?? 0 ?>" style="color: #fff; font-size: 16px;">Rp <?= number_format($layanan['harga_mulai'] ?? 0, 0, ',', '.') ?></strong>
+                </div>
+                
+                <p style="font-size: 11px; color: #888; text-align: center; margin-bottom: 20px; line-height: 1.4;">
+                    *Estimasi awal. Harga akhir ditentukan setelah konsultasi desain dan ukuran.
+                </p>
 
                 <a href="#" class="btn-gold full" id="btnPesanSekarang"
                     data-nama-layanan="<?= htmlspecialchars($layanan['nama_layanan'] ?? '') ?>"
                     data-kategori="<?= htmlspecialchars($layanan['nama_kategori'] ?? '') ?>"
                     data-estimasi="<?= htmlspecialchars($layanan['estimasi_hari'] ?? '') ?>"
                     data-harga-mulai="<?= number_format($layanan['harga_mulai'] ?? 0, 0, ',', '.') ?>">
-                    Pesan Sekarang
+                    <i class="fab fa-whatsapp"></i> Pesan Sekarang
                 </a>
-
             </div>
 
         </div>
@@ -317,22 +147,8 @@
         </div>
     </section>
 
-    <script src="<?= base_url('public/js/burgermenu.js') ?>"></script>
-    <script src="<?= base_url('public/js/WhatsApp-Pesan.js') ?>"></script>
-</body>
-
-</html>
-
-<script>
-    function userMenuToggle() {
-        document.querySelector('.user-menu').classList.toggle('active');
-    }
-
-    // klik di luar → menu menutup
-    document.addEventListener('click', function (e) {
-        const action = document.querySelector('.user-action');
-        if (action && !action.contains(e.target)) {
-            document.querySelector('.user-menu')?.classList.remove('active');
-        }
-    });
-</script>
+<?php
+$extra_js = '<script src="' . base_url('public/js/kalkulator.js') . '"></script>' . "\n" .
+            '<script src="' . base_url('public/js/WhatsApp-Pesan.js') . '"></script>';
+require_once __DIR__ . '/../layouts/footer.php';
+?>
