@@ -807,24 +807,22 @@ if (session_status() === PHP_SESSION_NONE) {
     </div>
   </div>
 
-
   <!-- Main Header -->
   <header class="main-header">
     <div class="container">
       <div class="logo">
-        <a href="#">
+        <a href="<?= base_url('#beranda') ?>">
           <img src="<?= base_url('public/img/logo/logo-jasa-jahit.png') ?>" alt="Jasa Jahit Premium" />
         </a>
       </div>
 
       <nav class="main-nav">
-        <a href="beranda#beranda">Beranda</a>
-        <a href="beranda#tentang-jasa">Tentang Kami</a>
-        <a href="beranda#jasa">Layanan</a>
-        <a href="beranda#process">Proses</a>
-        <a href="beranda#process-gallery">Galeri</a>
+        <a href="<?= base_url('#beranda') ?>">Beranda</a>
+        <a href="<?= base_url('#tentang-jasa') ?>">Tentang Kami</a>
+        <a href="<?= base_url('#jasa') ?>">Layanan</a>
+        <a href="<?= base_url('#process') ?>">Proses</a>
+        <a href="<?= base_url('#process-gallery') ?>">Galeri</a>
         <!-- LOGIN BUTTON -->
-
 
         <?php if (!empty($_SESSION['login'])): ?>
           <div class="user-action">
@@ -867,11 +865,11 @@ if (session_status() === PHP_SESSION_NONE) {
     </button>
 
     <div class="mobile-menu-content">
-      <a href="<?= base_url('front/beranda.php#beranda') ?>" class="mobile-menu-link">Beranda</a>
-      <a href="<?= base_url('front/beranda.php#tentang-jasa') ?>" class="mobile-menu-link">Tentang Kami</a>
-      <a href="<?= base_url('front/beranda.php#jasa') ?>" class="mobile-menu-link">Layanan</a>
-      <a href="<?= base_url('front/beranda.php#process') ?>" class="mobile-menu-link">Proses</a>
-      <a href="<?= base_url('front/beranda.php#process-gallery') ?>" class="mobile-menu-link">Galeri</a>
+      <a href="<?= base_url('#beranda') ?>" class="mobile-menu-link">Beranda</a>
+      <a href="<?= base_url('#tentang-jasa') ?>" class="mobile-menu-link">Tentang Kami</a>
+      <a href="<?= base_url('#jasa') ?>" class="mobile-menu-link">Layanan</a>
+      <a href="<?= base_url('#process') ?>" class="mobile-menu-link">Proses</a>
+      <a href="<?= base_url('#process-gallery') ?>" class="mobile-menu-link">Galeri</a>
 
       <div class="mobile-menu-divider"></div>
 

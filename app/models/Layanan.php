@@ -45,6 +45,20 @@ class Layanan {
         return $this->db->single();
     }
 
+    public function getActiveLayananDetailById($id_layanan) {
+        $this->db->query("
+            SELECT 
+                layanan.*,
+                kategori.nama_kategori
+            FROM layanan
+            JOIN kategori ON layanan.id_kategori = kategori.id_kategori
+            WHERE layanan.id_layanan = :id_layanan AND layanan.status = 'aktif'
+            LIMIT 1
+        ");
+        $this->db->bind('id_layanan', $id_layanan);
+        return $this->db->single();
+    }
+
     public function insert($data) {
         $this->db->query("INSERT INTO layanan (nama_layanan, deskripsi, harga_mulai, estimasi_hari, status, id_kategori, foto) VALUES (:nama_layanan, :deskripsi, :harga_mulai, :estimasi_hari, :status, :id_kategori, :foto)");
         $this->db->bind('nama_layanan', $data['nama_layanan']);

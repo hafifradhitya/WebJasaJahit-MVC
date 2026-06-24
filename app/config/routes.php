@@ -2,6 +2,10 @@
   
 $router->get('/', 'BerandaController@index');
 $router->get('/beranda', 'BerandaController@index');
+$router->get('/front/beranda.php', 'BerandaController@index');
+$router->get('/detail_layanan.php', 'BerandaController@detail_layanan');
+$router->get('/front/detail_layanan.php', 'BerandaController@detail_layanan');
+$router->get('/detail_layanan', 'BerandaController@detail_layanan');
 
 // Auth Routes
 $router->get('/auth/login', 'LoginController@index');

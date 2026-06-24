@@ -26,9 +26,9 @@ document.addEventListener("DOMContentLoaded", function () {
     const pesan =
       "Halo, saya ingin memesan jasa jahit.\n\n" +
       "Data Pemesan:\n" +
-      `Nama Lengkap : ${namaLengkap}\n` +
-      `No. Telepon : ${noTelepon}\n` +
-      `Email : ${email}\n\n` +
+      `Nama Lengkap : .....\n` +
+      `No. Telepon : .....\n` +
+      `Email : .....\n\n` +
       "Detail Pesanan:\n" +
       `Nama Layanan : ${namaLayanan}\n` +
       `Kategori : ${kategori}\n` +

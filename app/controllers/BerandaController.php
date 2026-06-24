@@ -44,4 +44,46 @@ class BerandaController extends Controller
 
         $this->view('front/beranda', $data);
     }
+
+    public function detail_layanan(): void
+    {
+        $id_layanan = isset($_GET['id']) ? intval($_GET['id']) : 0;
+
+        $layanan = $this->layananModel->getActiveLayananDetailById($id_layanan);
+
+        if (!$layanan) {
+            header("Location: " . base_url('front/beranda.php#jasa'));
+            exit;
+        }
+
+        // Convert object to array for view compatibility if needed
+        $layanan_array = json_decode(json_encode($layanan), true);
+
+        // Default arah tombol pesan
+        $link_pesan = base_url('auth/login.php');
+        $is_pelanggan = false;
+
+        if (isset($_SESSION['login']) && $_SESSION['login'] === true) {
+            if (isset($_SESSION['role']) && $_SESSION['role'] === 'pelanggan') {
+                $is_pelanggan = true;
+                $link_pesan = '#';
+            } else {
+                $link_pesan = base_url('front/beranda.php?error=akses');
+            }
+        }
+
+        // Default gambar jika tidak ada
+        $foto = !empty($layanan_array['foto'])
+            ? base_url('public/img/layanan/' . $layanan_array['foto'])
+            : base_url('public/img/layanan/orang-lagi-menjahit-kain.jpg');
+
+        $data = [
+            'layanan' => $layanan_array,
+            'link_pesan' => $link_pesan,
+            'is_pelanggan' => $is_pelanggan,
+            'foto' => $foto
+        ];
+
+        $this->view('front/detail_layanan', $data);
+    }
 }
