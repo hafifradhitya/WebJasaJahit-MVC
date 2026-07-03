@@ -79,3 +79,5 @@ $router->post('/admin/data_laporan/rekap_data_excel.php', 'LaporanController@rek
 $router->post('/admin/data_laporan/rekap_data_excel', 'LaporanController@rekapExcel');
 $router->post('/admin/data_laporan/rekap_excel.php', 'LaporanController@rekapExcel');
 $router->post('/admin/data_laporan/rekap_excel', 'LaporanController@rekapExcel');
+
+?>
