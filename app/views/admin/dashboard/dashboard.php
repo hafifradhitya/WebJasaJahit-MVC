@@ -104,16 +104,31 @@
                 </div>
             </div>
         </div>
-        <div class="col-xl-6 col-lg-6 col-md-6 mb-20">
+        <div class="col-xl-3 col-lg-3 col-md-6 mb-20">
             <div class="card-box height-100-p widget-style3">
                 <div class="d-flex flex-wrap">
                     <div class="widget-data">
-                        <div class="weight-700 font-24 text-dark">Rp <?= number_format($total_pendapatan, 0, ',', '.') ?></div>
-                        <div class="font-14 text-secondary weight-500">Total Pendapatan Sejauh ini</div>
+                        <div class="weight-700 font-24 text-dark">Rp <?= number_format($total_pendapatan_kotor, 0, ',', '.') ?></div>
+                        <div class="font-14 text-secondary weight-500">Total Pendapatan Kotor</div>
+                    </div>
+                    <div class="widget-icon">
+                        <div class="icon" data-color="#ff9900">
+                            <i class="icon-copy fa fa-money" aria-hidden="true"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-lg-3 col-md-6 mb-20">
+            <div class="card-box height-100-p widget-style3">
+                <div class="d-flex flex-wrap">
+                    <div class="widget-data">
+                        <div class="weight-700 font-24 text-dark">Rp <?= number_format($total_pendapatan_lunas, 0, ',', '.') ?></div>
+                        <div class="font-14 text-secondary weight-500">Pendapatan Lunas</div>
                     </div>
                     <div class="widget-icon">
                         <div class="icon" data-color="#09cc06">
-                            <i class="icon-copy fa fa-money" aria-hidden="true"></i>
+                            <i class="icon-copy fa fa-bank" aria-hidden="true"></i>
                         </div>
                     </div>
                 </div>
@@ -129,11 +144,11 @@
                     <div class="h5 mb-md-0">Aktivitas Pesanan Jahit</div>
 
                     <div class="form-group mb-md-0">
-                        <select class="form-control form-control-sm selectpicker">
-                            <option>7 Hari Terakhir</option>
-                            <option>Bulan Ini</option>
-                            <option>6 Bulan Terakhir</option>
-                            <option>Tahun Ini</option>
+                        <select id="chartFilter" class="form-control form-control-sm selectpicker">
+                            <option value="7 Hari Terakhir">7 Hari Terakhir</option>
+                            <option value="Bulan Ini">Bulan Ini</option>
+                            <option value="6 Bulan Terakhir">6 Bulan Terakhir</option>
+                            <option value="Tahun Ini" selected>Tahun Ini</option>
                         </select>
                     </div>
                 </div>
@@ -273,5 +288,46 @@ var options = {
 if (document.querySelector("#activities-chart")) {
     var chart = new ApexCharts(document.querySelector("#activities-chart"), options);
     chart.render();
+
+    var chartFilter = document.getElementById('chartFilter');
+    if (chartFilter) {
+        chartFilter.addEventListener('change', function() {
+            var filterVal = this.value;
+            var formData = new FormData();
+            formData.append('filter', filterVal);
+
+            fetch("<?= base_url('admin/dashboard/chart_data') ?>", {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.error) {
+                    console.error(data.error);
+                    return;
+                }
+                
+                chart.updateSeries([
+                    {
+                        name: "Total Orders",
+                        data: data.total
+                    },
+                    {
+                        name: "Completed Orders",
+                        data: data.selesai
+                    }
+                ]);
+
+                chart.updateOptions({
+                    xaxis: {
+                        categories: data.categories
+                    }
+                });
+            })
+            .catch(err => console.error(err));
+        });
+        
+        // Trigger on load to show correct "Tahun Ini" data layout if needed, though PHP injects it initially
+    }
 }
 </script>

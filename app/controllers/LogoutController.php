@@ -14,7 +14,7 @@ class LogoutController extends Controller {
         session_destroy();
 
         /* Redirect */
-        header("Location: " . base_url('auth/login'));
+        header("Location: " . base_url(''));
         exit();
     }
 }

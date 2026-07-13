@@ -7,7 +7,8 @@ class ProfileController extends Controller {
 
     private function checkAuth() {
         if (!isset($_SESSION['login'])) {
-            header("Location: " . base_url('auth/login?pesan=belum_login'));
+            http_response_code(404);
+            $this->view('errors/404');
             exit();
         }
     }

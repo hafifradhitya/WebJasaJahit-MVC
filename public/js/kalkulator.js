@@ -1,10 +1,4 @@
 document.addEventListener('DOMContentLoaded', function() {
-    const calcBahan = document.getElementById('calcBahan');
-    const calcKerumitan = document.getElementById('calcKerumitan');
-    const calcTotal = document.getElementById('calcTotal');
-
-    if (!calcBahan || !calcKerumitan || !calcTotal) return;
-
     function formatRupiah(angka) {
         return new Intl.NumberFormat('id-ID', {
             style: 'currency',
@@ -14,24 +8,31 @@ document.addEventListener('DOMContentLoaded', function() {
         }).format(angka);
     }
 
-    function calculateTotal() {
-        // Ambil harga dasar dari attribute data-base-price yang di set oleh PHP
-        const basePrice = parseInt(calcTotal.dataset.basePrice) || 0;
-        
-        const valBahan = parseInt(calcBahan.value) || 0;
-        const valKerumitan = parseInt(calcKerumitan.value) || 0;
+    function bindCalculator(idBahan, idKerumitan, idTotal) {
+        const calcBahan = document.getElementById(idBahan);
+        const calcKerumitan = document.getElementById(idKerumitan);
+        const calcTotal = document.getElementById(idTotal);
 
-        const total = basePrice + valBahan + valKerumitan;
-        
-        // Update UI
-        calcTotal.textContent = formatRupiah(total);
-        calcTotal.dataset.total = total; // Store for WhatsApp script
+        if (!calcBahan || !calcKerumitan || !calcTotal) return;
+
+        function calculateTotal() {
+            const basePrice = parseInt(calcTotal.dataset.basePrice) || 0;
+            const valBahan = parseInt(calcBahan.value) || 0;
+            const valKerumitan = parseInt(calcKerumitan.value) || 0;
+            const total = basePrice + valBahan + valKerumitan;
+            
+            calcTotal.textContent = formatRupiah(total);
+            calcTotal.dataset.total = total;
+        }
+
+        calcBahan.addEventListener('change', calculateTotal);
+        calcKerumitan.addEventListener('change', calculateTotal);
+        calculateTotal();
     }
 
-    // Event Listeners
-    calcBahan.addEventListener('change', calculateTotal);
-    calcKerumitan.addEventListener('change', calculateTotal);
-
-    // Initial Calculation
-    calculateTotal();
+    // Bind Right Side (WA)
+    bindCalculator('calcBahan', 'calcKerumitan', 'calcTotal');
+    
+    // Bind Left Side (Website Form)
+    bindCalculator('webCalcBahan', 'webCalcKerumitan', 'webCalcTotal');
 });

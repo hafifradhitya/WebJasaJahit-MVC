@@ -32,9 +32,15 @@ class TrackingController extends Controller
         }
 
         $keyword = htmlspecialchars(trim($input['keyword']));
+        
+        $clean_keyword = $keyword;
+        // Jika formatnya INV-XXXX, ambil angkanya saja tanpa menghilangkan angka 0 di depan (penting untuk no telepon)
+        if (preg_match('/^INV\s*-\s*(\d+)$/i', $keyword, $matches)) {
+            $clean_keyword = $matches[1];
+        }
 
         $pesananModel = $this->model('Pesanan');
-        $hasil = $pesananModel->getPesananByPhoneOrId($keyword);
+        $hasil = $pesananModel->getPesananByPhoneOrId($clean_keyword);
 
         if (empty($hasil)) {
             echo json_encode([

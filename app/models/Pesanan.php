@@ -21,6 +21,10 @@ class Pesanan {
                 pesanan.tanggal_pesan,
                 pesanan.tanggal_selesai,
                 pesanan.status_pesanan,
+                pesanan.estimasi_harga,
+                pesanan.harga_final,
+                pesanan.status_pembayaran,
+                pesanan.midtrans_order_id,
 
                 users.nama_lengkap,
                 users.no_telepon,
@@ -48,6 +52,10 @@ class Pesanan {
                 pesanan.tanggal_pesan,
                 pesanan.tanggal_selesai,
                 pesanan.status_pesanan,
+                pesanan.estimasi_harga,
+                pesanan.harga_final,
+                pesanan.status_pembayaran,
+                pesanan.midtrans_order_id,
 
                 users.nama_lengkap,
                 users.no_telepon,
@@ -108,9 +116,9 @@ class Pesanan {
     public function insert($data) {
         $this->db->query("
             INSERT INTO pesanan 
-                (id_user, id_layanan, ukuran_pakaian, catatan, tanggal_pesan, tanggal_selesai, status_pesanan) 
+                (id_user, id_layanan, ukuran_pakaian, catatan, tanggal_pesan, tanggal_selesai, status_pesanan, estimasi_harga, opsi_bahan, opsi_kerumitan, harga_final, status_pembayaran, midtrans_order_id) 
             VALUES 
-                (:id_user, :id_layanan, :ukuran_pakaian, :catatan, :tanggal_pesan, :tanggal_selesai, :status_pesanan)
+                (:id_user, :id_layanan, :ukuran_pakaian, :catatan, :tanggal_pesan, :tanggal_selesai, :status_pesanan, :estimasi_harga, :opsi_bahan, :opsi_kerumitan, :harga_final, :status_pembayaran, :midtrans_order_id)
         ");
         $this->db->bind('id_user', $data['id_user']);
         $this->db->bind('id_layanan', $data['id_layanan']);
@@ -119,6 +127,12 @@ class Pesanan {
         $this->db->bind('tanggal_pesan', $data['tanggal_pesan']);
         $this->db->bind('tanggal_selesai', $data['tanggal_selesai']);
         $this->db->bind('status_pesanan', $data['status_pesanan']);
+        $this->db->bind('estimasi_harga', $data['estimasi_harga'] ?? null);
+        $this->db->bind('opsi_bahan', $data['opsi_bahan'] ?? null);
+        $this->db->bind('opsi_kerumitan', $data['opsi_kerumitan'] ?? null);
+        $this->db->bind('harga_final', $data['harga_final'] ?? null);
+        $this->db->bind('status_pembayaran', $data['status_pembayaran'] ?? 'belum_bayar');
+        $this->db->bind('midtrans_order_id', $data['midtrans_order_id'] ?? null);
         $this->db->execute();
     }
 
@@ -131,7 +145,14 @@ class Pesanan {
                 catatan = :catatan, 
                 tanggal_pesan = :tanggal_pesan, 
                 tanggal_selesai = :tanggal_selesai, 
-                status_pesanan = :status_pesanan 
+                status_pesanan = :status_pesanan,
+                waktu_selesai = :waktu_selesai,
+                waktu_diambil = :waktu_diambil,
+                estimasi_harga = :estimasi_harga,
+                opsi_bahan = :opsi_bahan,
+                opsi_kerumitan = :opsi_kerumitan,
+                harga_final = :harga_final,
+                status_pembayaran = :status_pembayaran
             WHERE id_pesanan = :id_pesanan
         ");
         $this->db->bind('id_user', $data['id_user']);
@@ -141,7 +162,22 @@ class Pesanan {
         $this->db->bind('tanggal_pesan', $data['tanggal_pesan']);
         $this->db->bind('tanggal_selesai', $data['tanggal_selesai']);
         $this->db->bind('status_pesanan', $data['status_pesanan']);
+        $this->db->bind('waktu_selesai', $data['waktu_selesai'] ?? null);
+        $this->db->bind('waktu_diambil', $data['waktu_diambil'] ?? null);
+        $this->db->bind('estimasi_harga', $data['estimasi_harga'] ?? null);
+        $this->db->bind('opsi_bahan', $data['opsi_bahan'] ?? null);
+        $this->db->bind('opsi_kerumitan', $data['opsi_kerumitan'] ?? null);
+        $this->db->bind('harga_final', $data['harga_final'] ?? null);
+        $this->db->bind('status_pembayaran', $data['status_pembayaran'] ?? 'belum_bayar');
         $this->db->bind('id_pesanan', $data['id_pesanan']);
+        $this->db->execute();
+    }
+
+    public function updatePaymentStatus($id_pesanan, $status, $midtrans_order_id = null) {
+        $this->db->query("UPDATE pesanan SET status_pembayaran = :status_pembayaran, midtrans_order_id = :midtrans_order_id WHERE id_pesanan = :id_pesanan");
+        $this->db->bind('status_pembayaran', $status);
+        $this->db->bind('midtrans_order_id', $midtrans_order_id);
+        $this->db->bind('id_pesanan', $id_pesanan);
         $this->db->execute();
     }
 
@@ -317,6 +353,10 @@ class Pesanan {
                 pesanan.tanggal_pesan,
                 pesanan.tanggal_selesai,
                 pesanan.status_pesanan,
+                pesanan.estimasi_harga,
+                pesanan.harga_final,
+                pesanan.status_pembayaran,
+                pesanan.midtrans_order_id,
                 users.nama_lengkap,
                 users.no_telepon,
                 layanan.nama_layanan,

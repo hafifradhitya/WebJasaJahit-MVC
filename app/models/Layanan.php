@@ -13,6 +13,7 @@ class Layanan {
             SELECT 
                 layanan.id_layanan,
                 layanan.nama_layanan,  
+                layanan.slug,
                 layanan.deskripsi,
                 layanan.foto,
                 layanan.harga_mulai,
@@ -59,9 +60,24 @@ class Layanan {
         return $this->db->single();
     }
 
+    public function getActiveLayananDetailBySlug($slug) {
+        $this->db->query("
+            SELECT 
+                layanan.*,
+                kategori.nama_kategori
+            FROM layanan
+            JOIN kategori ON layanan.id_kategori = kategori.id_kategori
+            WHERE layanan.slug = :slug AND layanan.status = 'aktif'
+            LIMIT 1
+        ");
+        $this->db->bind('slug', $slug);
+        return $this->db->single();
+    }
+
     public function insert($data) {
-        $this->db->query("INSERT INTO layanan (nama_layanan, deskripsi, harga_mulai, estimasi_hari, status, id_kategori, foto) VALUES (:nama_layanan, :deskripsi, :harga_mulai, :estimasi_hari, :status, :id_kategori, :foto)");
+        $this->db->query("INSERT INTO layanan (nama_layanan, slug, deskripsi, harga_mulai, estimasi_hari, status, id_kategori, foto) VALUES (:nama_layanan, :slug, :deskripsi, :harga_mulai, :estimasi_hari, :status, :id_kategori, :foto)");
         $this->db->bind('nama_layanan', $data['nama_layanan']);
+        $this->db->bind('slug', $data['slug']);
         $this->db->bind('deskripsi', $data['deskripsi']);
         $this->db->bind('harga_mulai', $data['harga_mulai']);
         $this->db->bind('estimasi_hari', $data['estimasi_hari']);
@@ -72,8 +88,9 @@ class Layanan {
     }
 
     public function update($data) {
-        $this->db->query("UPDATE layanan SET nama_layanan = :nama_layanan, deskripsi = :deskripsi, harga_mulai = :harga_mulai, estimasi_hari = :estimasi_hari, status = :status, id_kategori = :id_kategori, foto = :foto WHERE id_layanan = :id_layanan");
+        $this->db->query("UPDATE layanan SET nama_layanan = :nama_layanan, slug = :slug, deskripsi = :deskripsi, harga_mulai = :harga_mulai, estimasi_hari = :estimasi_hari, status = :status, id_kategori = :id_kategori, foto = :foto WHERE id_layanan = :id_layanan");
         $this->db->bind('nama_layanan', $data['nama_layanan']);
+        $this->db->bind('slug', $data['slug']);
         $this->db->bind('deskripsi', $data['deskripsi']);
         $this->db->bind('harga_mulai', $data['harga_mulai']);
         $this->db->bind('estimasi_hari', $data['estimasi_hari']);

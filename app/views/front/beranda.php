@@ -136,7 +136,7 @@
               <div class="tp-card-body">
                 <h3><?= htmlspecialchars($layanan['nama_layanan']) ?></h3>
                 <p><?= htmlspecialchars($layanan['deskripsi']) ?></p>
-                <a href="<?= base_url('front/detail_layanan.php?id=' . $layanan['id_layanan']) ?>"
+                <a href="<?= base_url('front/detail_layanan.php?slug=' . $layanan['slug']) ?>"
                   class="tp-card-btn">Detail Layanan</a>
               </div>
             </article>

@@ -26,6 +26,7 @@
                     <th>Ukuran Pakaian</th>
                     <th>Periode Pesanan</th>
                     <th>Status</th>
+                    <th>Pembayaran</th>
                     <th class="datatable-nosort">Action</th>
                 </tr>
             </thead>
@@ -80,7 +81,29 @@
                                         $text  = 'Unknown';
                                 }
                                 ?>
-                                <span class="badge <?= $badge ?>"><?= $text ?></span>
+                                <form action="<?= base_url('admin/data_pesanan/update_status') ?>" method="POST" style="margin: 0;" id="form-status-<?= $row->id_pesanan ?>">
+                                    <input type="hidden" name="id_pesanan" value="<?= $row->id_pesanan ?>">
+                                    <input type="hidden" name="status_pesanan" id="status-<?= $row->id_pesanan ?>" value="<?= $status ?>">
+                                    <div class="dropdown">
+                                        <button class="btn badge <?= $badge ?> dropdown-toggle border-0" type="button" data-toggle="dropdown" aria-expanded="false" style="color: #fff; padding: 6px 12px; font-size: 12px; font-weight: 500; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                                            <?= $text ?>
+                                        </button>
+                                        <div class="dropdown-menu dropdown-menu-right shadow-sm border-0" style="border-radius: 8px; overflow: hidden; padding: 0; min-width: 120px;">
+                                            <a class="dropdown-item py-2 <?= $status == 'menunggu' ? 'active' : '' ?>" href="#" onclick="document.getElementById('status-<?= $row->id_pesanan ?>').value='menunggu'; document.getElementById('form-status-<?= $row->id_pesanan ?>').submit(); return false;">Menunggu</a>
+                                            <a class="dropdown-item py-2 <?= $status == 'proses' ? 'active' : '' ?>" href="#" onclick="document.getElementById('status-<?= $row->id_pesanan ?>').value='proses'; document.getElementById('form-status-<?= $row->id_pesanan ?>').submit(); return false;">Proses</a>
+                                            <a class="dropdown-item py-2 <?= $status == 'selesai' ? 'active' : '' ?>" href="#" onclick="document.getElementById('status-<?= $row->id_pesanan ?>').value='selesai'; document.getElementById('form-status-<?= $row->id_pesanan ?>').submit(); return false;">Selesai</a>
+                                            <a class="dropdown-item py-2 <?= $status == 'diambil' ? 'active' : '' ?>" href="#" onclick="document.getElementById('status-<?= $row->id_pesanan ?>').value='diambil'; document.getElementById('form-status-<?= $row->id_pesanan ?>').submit(); return false;">Diambil</a>
+                                        </div>
+                                    </div>
+                                </form>
+                            </td>
+
+                            <td>
+                                <?php if (isset($row->status_pembayaran) && $row->status_pembayaran == 'lunas') : ?>
+                                    <span class="badge badge-success border-0 shadow-sm" style="padding: 6px 12px; font-weight: 500;"><i class="fa fa-check-circle"></i> Lunas</span>
+                                <?php else : ?>
+                                    <span class="badge badge-warning text-white border-0 shadow-sm" style="padding: 6px 12px; font-weight: 500;"><i class="fa fa-clock-o"></i> Belum</span>
+                                <?php endif; ?>
                             </td>
 
                             <td>

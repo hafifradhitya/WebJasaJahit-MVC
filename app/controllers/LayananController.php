@@ -120,8 +120,11 @@ class LayananController extends Controller {
             if (!empty($pesan_kesalahan)) {
                 $_SESSION['validasi'] = implode("<br>", $pesan_kesalahan);
             } else {
+                $slug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $nama_layanan), '-')) . '-' . substr(md5(uniqid()), 0, 8);
+
                 $data = [
                     'nama_layanan' => $nama_layanan,
+                    'slug' => $slug,
                     'deskripsi' => $deskripsi,
                     'harga_mulai' => $harga_mulai,
                     'estimasi_hari' => $estimasi_hari,
@@ -226,9 +229,12 @@ class LayananController extends Controller {
                 header("Location: " . base_url('admin/data_layanan/edit?id_layanan=' . $id_layanan));
                 exit();
             } else {
+                $slug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $nama_layanan), '-')) . '-' . substr(md5(uniqid()), 0, 8);
+
                 $data = [
                     'id_layanan' => $id_layanan,
                     'nama_layanan' => $nama_layanan,
+                    'slug' => $slug,
                     'deskripsi' => $deskripsi,
                     'harga_mulai' => $harga_mulai,
                     'estimasi_hari' => $estimasi_hari,

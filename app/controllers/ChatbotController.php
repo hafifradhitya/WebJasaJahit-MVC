@@ -5,9 +5,7 @@ require_once __DIR__ . '/../models/Layanan.php';
 
 class ChatbotController extends Controller
 {
-    private const HF_ROUTER_ENDPOINT = 'https://router.huggingface.co/v1/chat/completions';
-    private const HF_LEGACY_ENDPOINT = 'https://api-inference.huggingface.co/models/%s/v1/chat/completions';
-    private const DEFAULT_MODEL = 'Qwen/Qwen2.5-7B-Instruct';
+    private const GEMINI_ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=%s';
     private const WHATSAPP = '+62 896-8250-6082';
     private const WHATSAPP_LINK = 'https://wa.me/6289682506082';
     private const ADDRESS = 'Jl. Gunung Jati Gg. Mushollah, Desa Jadimulya, RT 02/RW 01, Kab. Cirebon';
@@ -27,56 +25,61 @@ class ChatbotController extends Controller
         }
 
         if ($this->getApiKey() === '') {
-            $this->sendReply(false, 'Token Hugging Face belum diisi. Isi HUGGINGFACE_API_KEY di app/config/config.php atau set environment variable HF_TOKEN.');
+            $this->sendReply(false, 'Token Google Gemini belum diisi. Silakan isi GEMINI_API_KEY di file .env');
         }
 
         $history = $this->parseHistory((string) ($_POST['history'] ?? '[]'));
-        $aiReply = $this->askHuggingFace($this->buildMessages($userMessage, $history));
+        $aiReply = $this->askGemini($userMessage, $history);
 
         if ($aiReply !== null) {
-            $this->sendReply(true, $aiReply, 'huggingface-qwen');
+            $this->sendReply(true, $aiReply, 'google-gemini');
         }
 
-        $this->sendReply(false, 'Maaf, Qwen Hugging Face belum bisa dihubungi. Silakan cek token Hugging Face/koneksi server, lalu coba lagi.');
+        $this->sendReply(false, 'Maaf, Google Gemini belum bisa dihubungi. Silakan cek token / koneksi server, lalu coba lagi.');
     }
 
-    private function askHuggingFace(array $messages): ?string
+    private function askGemini(string $userMessage, array $history): ?string
     {
         $apiKey = $this->getApiKey();
         if ($apiKey === '') {
-            error_log('Hugging Face chatbot request skipped: API key is empty.');
             return null;
         }
 
-        $model = getenv('HF_MODEL') ?: self::DEFAULT_MODEL;
-        $payload = [
-            'model' => $model,
-            'messages' => $messages,
-            'max_tokens' => 450,
-            'temperature' => 0.55,
-            'top_p' => 0.9,
-            'stream' => false,
-        ];
+        $endpoint = sprintf(self::GEMINI_ENDPOINT, $apiKey);
 
-        $reply = $this->requestHuggingFace(self::HF_ROUTER_ENDPOINT, $payload, $apiKey);
-        if ($reply !== null) {
-            return $reply;
+        $contents = [];
+        foreach (array_slice($history, -8) as $item) {
+            $contents[] = [
+                'role' => $item['role'], // 'user' or 'model'
+                'parts' => [['text' => $item['content']]]
+            ];
         }
 
-        $encodedModel = str_replace('%2F', '/', rawurlencode($model));
+        $contents[] = [
+            'role' => 'user',
+            'parts' => [['text' => $userMessage]]
+        ];
 
-        return $this->requestHuggingFace(sprintf(self::HF_LEGACY_ENDPOINT, $encodedModel), $payload, $apiKey);
-    }
+        $payload = [
+            'systemInstruction' => [
+                'parts' => [
+                    ['text' => $this->systemPrompt()]
+                ]
+            ],
+            'contents' => $contents,
+            'generationConfig' => [
+                'maxOutputTokens' => 450,
+                'temperature' => 0.55,
+                'topP' => 0.9,
+            ]
+        ];
 
-    private function requestHuggingFace(string $endpoint, array $payload, string $apiKey): ?string
-    {
         $ch = curl_init($endpoint);
         curl_setopt_array($ch, [
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_POST => true,
             CURLOPT_HTTPHEADER => [
                 'Content-Type: application/json',
-                'Authorization: Bearer ' . $apiKey,
             ],
             CURLOPT_POSTFIELDS => json_encode($payload),
             CURLOPT_CONNECTTIMEOUT => 10,
@@ -90,43 +93,14 @@ class ChatbotController extends Controller
         curl_close($ch);
 
         if ($response === false || $curlError !== '' || $httpCode < 200 || $httpCode >= 300) {
-            error_log('Hugging Face chatbot request failed. Endpoint: ' . $endpoint . '; HTTP: ' . $httpCode . '; cURL: ' . $curlError . '; body: ' . substr((string) $response, 0, 700));
+            error_log('Gemini chatbot request failed. HTTP: ' . $httpCode . '; cURL: ' . $curlError . '; body: ' . substr((string) $response, 0, 700));
             return null;
         }
 
         $data = json_decode((string) $response, true);
-        $reply = $data['choices'][0]['message']['content'] ?? null;
+        $reply = $data['candidates'][0]['content']['parts'][0]['text'] ?? null;
 
         return is_string($reply) && trim($reply) !== '' ? trim($reply) : null;
-    }
-
-    private function buildMessages(string $userMessage, array $history): array
-    {
-        $messages = [
-            [
-                'role' => 'system',
-                'content' => $this->systemPrompt(),
-            ],
-        ];
-
-        foreach (array_slice($history, -8) as $item) {
-            $content = trim((string) ($item['content'] ?? ''));
-            if ($content === '') {
-                continue;
-            }
-
-            $messages[] = [
-                'role' => ($item['role'] ?? '') === 'assistant' ? 'assistant' : 'user',
-                'content' => substr($content, 0, 800),
-            ];
-        }
-
-        $messages[] = [
-            'role' => 'user',
-            'content' => $userMessage,
-        ];
-
-        return $messages;
     }
 
     private function systemPrompt(): string
@@ -208,10 +182,15 @@ Aturan:
                 continue;
             }
 
+            // Gemini API expects roles to be either 'user' or 'model'
             $role = (string) ($item['role'] ?? '');
+            if ($role === 'assistant') {
+                $role = 'model';
+            }
+
             $content = trim((string) ($item['content'] ?? ''));
-            if (in_array($role, ['user', 'assistant'], true) && $content !== '') {
-                $history[] = ['role' => $role, 'content' => $content];
+            if (in_array($role, ['user', 'model'], true) && $content !== '') {
+                $history[] = ['role' => $role, 'content' => substr($content, 0, 800)];
             }
         }
 
@@ -220,9 +199,10 @@ Aturan:
 
     private function getApiKey(): string
     {
-        $configuredToken = defined('HUGGINGFACE_API_KEY') ? HUGGINGFACE_API_KEY : '';
+        // Fetch from .env
+        $geminiApiKey = $_ENV['GEMINI_API_KEY'] ?? '';
 
-        return trim((string) ($configuredToken ?: getenv('HF_TOKEN') ?: getenv('HUGGINGFACE_API_KEY')));
+        return trim($geminiApiKey);
     }
 
     private function formatRupiah(int $amount): string

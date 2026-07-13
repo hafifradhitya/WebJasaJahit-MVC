@@ -1,13 +1,16 @@
 <?php
 
-function e($value) {
+function e($value)
+{
     return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
 }
 
-function base_url($path) {
+function base_url($path)
+{
     return BASE_URL . '/' . $path;
 }
 
-function site_url($url = '') {
+function site_url($url = '')
+{
     return '/' . $url;
 }

@@ -45,6 +45,11 @@ class PesananController extends Controller {
             $id_layanan      = htmlspecialchars(trim($_POST['id_layanan'] ?? ''));
             $ukuran_pakaian  = htmlspecialchars(trim($_POST['ukuran_pakaian'] ?? ''));
             $catatan         = htmlspecialchars(trim($_POST['catatan'] ?? ''));
+            $estimasi_harga  = htmlspecialchars(trim($_POST['estimasi_harga'] ?? ''));
+            $opsi_bahan      = htmlspecialchars(trim($_POST['opsi_bahan'] ?? ''));
+            $opsi_kerumitan  = htmlspecialchars(trim($_POST['opsi_kerumitan'] ?? ''));
+            $harga_final     = htmlspecialchars(trim($_POST['harga_final'] ?? ''));
+            $status_pembayaran = htmlspecialchars(trim($_POST['status_pembayaran'] ?? 'belum_bayar'));
 
             // Parse tanggal
             $tgl_pesan_raw   = $_POST['tanggal_pesan'] ?? '';
@@ -82,6 +87,11 @@ class PesananController extends Controller {
                     'tanggal_pesan'   => $tanggal_pesan,
                     'tanggal_selesai' => $tanggal_selesai,
                     'status_pesanan'  => 'menunggu',
+                    'estimasi_harga'  => empty($estimasi_harga) ? null : $estimasi_harga,
+                    'opsi_bahan'      => empty($opsi_bahan) ? null : $opsi_bahan,
+                    'opsi_kerumitan'  => empty($opsi_kerumitan) ? null : $opsi_kerumitan,
+                    'harga_final'     => empty($harga_final) ? null : $harga_final,
+                    'status_pembayaran' => $status_pembayaran,
                 ]);
 
                 // Jika ukuran custom, simpan data ukuran atasan & bawahan
@@ -99,8 +109,8 @@ class PesananController extends Controller {
                         'lingkar_lengan'   => $_POST['lingkar_lengan'] ?? 0,
                         'panjang_baju'     => $_POST['panjang_baju'] ?? 0,
                         'lingkar_leher'    => $_POST['lingkar_leher'] ?? 0,
-                        'model_fit'        => $_POST['model_fit'] ?? '',
-                        'kegunaan'         => $_POST['kegunaan'] ?? '',
+                        'model_fit'        => !empty($_POST['model_fit']) ? $_POST['model_fit'] : 'fit_badan',
+                        'kegunaan'         => !empty($_POST['kegunaan']) ? $_POST['kegunaan'] : 'formal',
                     ]);
 
                     // Simpan ukuran bawahan
@@ -149,6 +159,11 @@ class PesananController extends Controller {
             $ukuran_pakaian  = htmlspecialchars(trim($_POST['ukuran_pakaian'] ?? ''));
             $catatan         = htmlspecialchars(trim($_POST['catatan'] ?? ''));
             $status_pesanan  = htmlspecialchars(trim($_POST['status_pesanan'] ?? ''));
+            $estimasi_harga  = htmlspecialchars(trim($_POST['estimasi_harga'] ?? ''));
+            $opsi_bahan      = htmlspecialchars(trim($_POST['opsi_bahan'] ?? ''));
+            $opsi_kerumitan  = htmlspecialchars(trim($_POST['opsi_kerumitan'] ?? ''));
+            $harga_final     = htmlspecialchars(trim($_POST['harga_final'] ?? ''));
+            $status_pembayaran = htmlspecialchars(trim($_POST['status_pembayaran'] ?? 'belum_bayar'));
 
             // Parse tanggal dari date-picker (format m/d/Y -> Y-m-d)
             $tgl_pesan_raw   = $_POST['tanggal_pesan'] ?? '';
@@ -182,6 +197,21 @@ class PesananController extends Controller {
                 header("Location: " . base_url('admin/data_pesanan/edit?id_pesanan=' . $id_pesanan));
                 exit();
             } else {
+                $pesananLama = $pesananModel->getPesananById($id_pesanan);
+                $waktu_selesai = $pesananLama->waktu_selesai ?? null;
+                $waktu_diambil = $pesananLama->waktu_diambil ?? null;
+
+                if ($pesananLama->status_pesanan !== 'selesai' && $status_pesanan === 'selesai') {
+                    $waktu_selesai = date('Y-m-d H:i:s');
+                }
+                if ($pesananLama->status_pesanan !== 'diambil' && $status_pesanan === 'diambil') {
+                    $waktu_diambil = date('Y-m-d H:i:s');
+                    // Jika melompat dari proses langsung ke diambil, catat juga waktu selesainya
+                    if (empty($waktu_selesai)) {
+                        $waktu_selesai = date('Y-m-d H:i:s');
+                    }
+                }
+
                 $pesananModel->update([
                     'id_pesanan'      => $id_pesanan,
                     'id_user'         => $id_user,
@@ -191,6 +221,13 @@ class PesananController extends Controller {
                     'tanggal_pesan'   => $tanggal_pesan,
                     'tanggal_selesai' => $tanggal_selesai,
                     'status_pesanan'  => $status_pesanan,
+                    'waktu_selesai'   => $waktu_selesai,
+                    'waktu_diambil'   => $waktu_diambil,
+                    'estimasi_harga'  => empty($estimasi_harga) ? null : $estimasi_harga,
+                    'opsi_bahan'      => empty($opsi_bahan) ? null : $opsi_bahan,
+                    'opsi_kerumitan'  => empty($opsi_kerumitan) ? null : $opsi_kerumitan,
+                    'harga_final'     => empty($harga_final) ? null : $harga_final,
+                    'status_pembayaran' => $status_pembayaran,
                 ]);
 
                 // Jika ukuran Custom, update/insert data ukuran
@@ -205,8 +242,8 @@ class PesananController extends Controller {
                         'lingkar_lengan'   => $_POST['lingkar_lengan'] ?? 0,
                         'panjang_baju'     => $_POST['panjang_baju'] ?? 0,
                         'lingkar_leher'    => $_POST['lingkar_leher'] ?? 0,
-                        'model_fit'        => $_POST['model_fit'] ?? '',
-                        'kegunaan'         => $_POST['kegunaan'] ?? '',
+                        'model_fit'        => !empty($_POST['model_fit']) ? $_POST['model_fit'] : 'regular',
+                        'kegunaan'         => !empty($_POST['kegunaan']) ? $_POST['kegunaan'] : 'santai',
                     ]);
 
                     $pesananModel->updateUkuranBawahan([
@@ -246,8 +283,8 @@ class PesananController extends Controller {
         $ukuran_atasan  = null;
         $ukuran_bawahan = null;
         if ($pesanan->ukuran_pakaian === 'Custom') {
-            $ukuran_atasan  = $pesananModel->getUkuranAtasanByPesanan($pesanan->id_pesanan);
-            $ukuran_bawahan = $pesananModel->getUkuranBawahanByPesanan($pesanan->id_pesanan);
+            $ukuran_atasan  = $pesananModel->getUkuranAtasanByPesanan($pesanan->id_pesanan) ?: null;
+            $ukuran_bawahan = $pesananModel->getUkuranBawahanByPesanan($pesanan->id_pesanan) ?: null;
         }
 
         $data = [
@@ -303,7 +340,59 @@ class PesananController extends Controller {
             $_SESSION['berhasil'] = 'Data Berhasil Dihapus';
         }
 
-        header("Location: " . base_url('admin/data_pesanan/semuapesanan'));
+        $redirect = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : base_url('admin/data_pesanan/semuapesanan');
+        header("Location: " . $redirect);
+        exit();
+    }
+
+    public function updateStatus() {
+        $this->checkAuth();
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id_pesanan']) && isset($_POST['status_pesanan'])) {
+            $id_pesanan = (int)$_POST['id_pesanan'];
+            $status_pesanan = htmlspecialchars(trim($_POST['status_pesanan']));
+            
+            $pesananModel = $this->model('Pesanan');
+            $pesananLama = $pesananModel->getPesananById($id_pesanan);
+            
+            if ($pesananLama) {
+                $waktu_selesai = $pesananLama->waktu_selesai;
+                $waktu_diambil = $pesananLama->waktu_diambil;
+
+                if ($pesananLama->status_pesanan !== 'selesai' && $status_pesanan === 'selesai') {
+                    $waktu_selesai = date('Y-m-d H:i:s');
+                }
+                if ($pesananLama->status_pesanan !== 'diambil' && $status_pesanan === 'diambil') {
+                    $waktu_diambil = date('Y-m-d H:i:s');
+                    if (empty($waktu_selesai)) {
+                        $waktu_selesai = date('Y-m-d H:i:s');
+                    }
+                }
+
+                $pesananModel->update([
+                    'id_pesanan'      => $pesananLama->id_pesanan,
+                    'id_user'         => $pesananLama->id_user,
+                    'id_layanan'      => $pesananLama->id_layanan,
+                    'ukuran_pakaian'  => $pesananLama->ukuran_pakaian,
+                    'catatan'         => $pesananLama->catatan,
+                    'tanggal_pesan'   => $pesananLama->tanggal_pesan,
+                    'tanggal_selesai' => $pesananLama->tanggal_selesai,
+                    'status_pesanan'  => $status_pesanan,
+                    'waktu_selesai'   => $waktu_selesai,
+                    'waktu_diambil'   => $waktu_diambil,
+                    'estimasi_harga'  => $pesananLama->estimasi_harga,
+                    'opsi_bahan'      => $pesananLama->opsi_bahan,
+                    'opsi_kerumitan'  => $pesananLama->opsi_kerumitan,
+                    'harga_final'     => $pesananLama->harga_final ?? null,
+                    'status_pembayaran' => $pesananLama->status_pembayaran ?? 'belum_bayar',
+                ]);
+                
+                $_SESSION['berhasil'] = 'Status Pesanan Berhasil Diperbarui';
+            }
+        }
+
+        $redirect = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : base_url('admin/data_pesanan/semuapesanan');
+        header("Location: " . $redirect);
         exit();
     }
 

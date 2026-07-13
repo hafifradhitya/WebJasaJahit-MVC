@@ -7,10 +7,12 @@ require_once __DIR__ . '/../core/Controller.php';
 class DashboardController extends Controller {
     public function index() {
         if (!isset($_SESSION['login'])) {
-            header("Location: " . base_url('auth/login?pesan=belum_login'));
+            http_response_code(404);
+            $this->view('errors/404');
             exit();
         } else if ($_SESSION["role"] != 'admin') {
-            header("Location: " . base_url('auth/login?pesan=tolak_akses'));
+            http_response_code(404);
+            $this->view('errors/404');
             exit();
         }
 
@@ -26,7 +28,8 @@ class DashboardController extends Controller {
             'pesanan_proses' => $dashboardModel->getPesananProses(),
             'pesanan_selesai' => $dashboardModel->getPesananSelesai(),
             'pesanan_diambil' => $dashboardModel->getPesananDiambil(),
-            'total_pendapatan' => $dashboardModel->getTotalPendapatan(),
+            'total_pendapatan_kotor' => $dashboardModel->getTotalPendapatanKotor(),
+            'total_pendapatan_lunas' => $dashboardModel->getTotalPendapatanLunas(),
             'bulan_total' => $dashboardModel->getBulanTotal(),
             'bulan_selesai' => $dashboardModel->getBulanSelesai(),
             'pesanan_bulan_ini' => $dashboardModel->getPesananBulanIni(),
@@ -38,5 +41,20 @@ class DashboardController extends Controller {
         $GLOBALS['no_preloader'] = $data['no_preloader'];
 
         $this->view('admin/dashboard/dashboard', $data);
+    }
+
+    public function chartData() {
+        if (!isset($_SESSION['login']) || $_SESSION["role"] != 'admin') {
+            echo json_encode(['error' => 'Unauthorized']);
+            exit();
+        }
+
+        $filter = $_POST['filter'] ?? 'Tahun Ini';
+        $dashboardModel = $this->model('Dashboard');
+        $data = $dashboardModel->getChartData($filter);
+        
+        header('Content-Type: application/json');
+        echo json_encode($data);
+        exit();
     }
 }

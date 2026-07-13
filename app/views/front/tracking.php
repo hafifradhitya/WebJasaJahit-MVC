@@ -154,7 +154,7 @@ ob_start();
             box-shadow: 0 0 15px rgba(236, 173, 41, 0.4);
         }
         .step.completed .step-label, .step.active .step-label { color: #ecad29; }
-        .step.completed::before { background-color: #ecad29; }
+        .step.completed::before, .step.active::before { background-color: #ecad29; }
 
         /* Animasi */
         @keyframes slideUp { to { opacity: 1; transform: translateY(0); } }
@@ -178,8 +178,9 @@ require_once __DIR__ . '/../layouts/header.php';
         <h1>Lacak Pesanan Anda</h1>
         <p>Pantau progres jahitan Anda secara real-time. Masukkan ID Pesanan atau Nomor WhatsApp Anda di bawah ini.</p>
         
+        <?php $autoKeyword = isset($_GET['keyword']) ? htmlspecialchars($_GET['keyword']) : ''; ?>
         <form id="formLacak" class="search-box">
-            <input type="text" id="inputKeyword" placeholder="Contoh: 12 atau 0812345678" required autocomplete="off">
+            <input type="text" id="inputKeyword" value="<?= $autoKeyword ?>" placeholder="Contoh: INV-0109 atau 0812345678" required autocomplete="off">
             <button type="submit" id="btnSearch">
                 <i class="fas fa-search"></i> Lacak
             </button>
@@ -253,12 +254,31 @@ require_once __DIR__ . '/../layouts/header.php';
                     <div class="step-label">Diambil</div>
                 </div>
             </div>
+
+            <!-- Pembayaran -->
+            <div class="payment-box" style="display:none; text-align: center; margin-top: 25px; padding: 20px; background: rgba(236,173,41,0.1); border: 1px solid #ecad29; border-radius: 10px;">
+                <h4 style="color:#ecad29; margin-bottom: 15px; font-size: 16px;">Total Tagihan: <strong class="val-harga-final"></strong></h4>
+                <button class="btn-bayar" data-id="" style="background: linear-gradient(135deg, #ecad29, #b8860b); color: #0a0a0a; border: none; padding: 12px 30px; font-weight: bold; border-radius: 50px; cursor: pointer; transition: 0.3s; font-size: 15px; box-shadow: 0 5px 15px rgba(236, 173, 41, 0.3);">
+                    <i class="fas fa-wallet"></i> Bayar Sekarang
+                </button>
+            </div>
+            
+            <div class="lunas-box" style="display:none; text-align: center; margin-top: 25px; padding: 15px; background: rgba(39, 174, 96, 0.1); border: 1px solid #27ae60; border-radius: 10px;">
+                <h4 style="color:#27ae60; margin-bottom: 0; font-size: 16px;"><i class="fas fa-check-circle"></i> Pembayaran Lunas</h4>
+            </div>
+
+            <!-- Keterangan Status -->
+            <div class="order-keterangan" style="margin-top: 25px; padding: 15px 20px; background: rgba(236, 173, 41, 0.1); border-radius: 8px; border-left: 4px solid #ecad29; display: none;">
+                <strong class="ket-title" style="color: #ecad29; font-size: 14px;"><i class="fas fa-info-circle"></i> Keterangan Status:</strong>
+                <p class="val-keterangan" style="color: #eee; font-size: 13px; margin-top: 8px; margin-bottom: 0; line-height: 1.5;"></p>
+            </div>
         </div>
     </template>
 
 <?php
 ob_start();
 ?>
+<script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="<?= $_ENV['MIDTRANS_CLIENT_KEY'] ?? '' ?>"></script>
 <script>
 // Auto-reset UI when input is cleared
         document.getElementById('inputKeyword').addEventListener('input', function(e) {
@@ -275,6 +295,17 @@ ob_start();
             e.preventDefault();
             const keyword = document.getElementById('inputKeyword').value.trim();
             if (!keyword) return;
+            
+            // Format keyword for URL (always prepend INV- if it's not there)
+            let urlKeyword = keyword;
+            if (!/^INV\s*-/i.test(urlKeyword)) {
+                urlKeyword = 'INV-' + urlKeyword;
+            }
+            
+            // Update URL without reloading
+            const newUrl = new URL(window.location.href);
+            newUrl.searchParams.set('keyword', urlKeyword);
+            window.history.pushState({path: newUrl.href}, '', newUrl.href);
 
             // UI States
             const stateWelcome = document.getElementById('stateWelcome');
@@ -310,7 +341,7 @@ ob_start();
                         const clone = template.content.cloneNode(true);
                         
                         // Isi Detail
-                        clone.querySelector('.val-id').textContent = '#' + pesanan.id_pesanan;
+                        clone.querySelector('.val-id').textContent = 'INV-' + pesanan.id_pesanan.toString().padStart(4, '0');
                         clone.querySelector('.val-date').textContent = pesanan.tanggal_pesan;
                         clone.querySelector('.val-name').textContent = pesanan.nama_lengkap;
                         clone.querySelector('.val-service').textContent = pesanan.nama_layanan;
@@ -328,6 +359,130 @@ ob_start();
                                 stepEl.classList.add('active');
                             }
                         });
+
+                        // Set Text Keterangan
+                        let ketText = '';
+                        let colorHex = '#ecad29'; // Default Golden
+                        
+                        if (currentStatus === 'menunggu') {
+                            ketText = 'Pesanan Anda telah masuk dan sedang menunggu antrean untuk segera diproses.';
+                        } else if (currentStatus === 'proses') {
+                            ketText = 'Pesanan Anda sedang dalam tahap proses penjahitan oleh tim penjahit kami.';
+                        } else if (currentStatus === 'selesai') {
+                            ketText = 'Hore! Pesanan Anda sudah selesai dikerjakan dan siap untuk diambil di toko kami. Silakan datang ke lokasi dengan membawa bukti pesanan.';
+                            if (pesanan.waktu_selesai) {
+                                ketText += `<br><br><small><i class="far fa-clock"></i> Diselesaikan pada: <strong>${pesanan.waktu_selesai}</strong></small>`;
+                            }
+                            colorHex = '#3498db'; // Blue
+                        } else if (currentStatus === 'diambil') {
+                            ketText = 'Pesanan telah diambil oleh Anda. Terima kasih banyak telah menggunakan layanan Jasa Jahit kami!';
+                            if (pesanan.waktu_selesai) {
+                                ketText += `<br><br><small><i class="far fa-check-circle"></i> Diselesaikan pada: <strong>${pesanan.waktu_selesai}</strong></small>`;
+                            }
+                            if (pesanan.waktu_diambil) {
+                                ketText += `<br><small><i class="far fa-clock"></i> Diambil pada: <strong>${pesanan.waktu_diambil}</strong></small>`;
+                            }
+                            colorHex = '#27ae60'; // Green
+                        }
+                        
+                        const ketBox = clone.querySelector('.order-keterangan');
+                        const ketTitle = clone.querySelector('.ket-title');
+                        clone.querySelector('.val-keterangan').innerHTML = ketText;
+                        
+                        ketBox.style.display = 'block';
+                        ketBox.style.borderLeftColor = colorHex;
+                        ketBox.style.background = colorHex + '1A'; // 10% opacity hex
+                        ketTitle.style.color = colorHex;
+
+                        // Logic Payment Midtrans
+                        const paymentBox = clone.querySelector('.payment-box');
+                        const lunasBox = clone.querySelector('.lunas-box');
+                        const btnBayar = clone.querySelector('.btn-bayar');
+                        const valHargaFinal = clone.querySelector('.val-harga-final');
+                        
+                        const hargaBayar = (pesanan.harga_final && pesanan.harga_final > 0) ? pesanan.harga_final : ((pesanan.estimasi_harga && pesanan.estimasi_harga > 0) ? pesanan.estimasi_harga : pesanan.harga_mulai);
+                        
+                        if (hargaBayar > 0) {
+                            if (pesanan.status_pembayaran === 'lunas') {
+                                lunasBox.style.display = 'block';
+                            } else if (currentStatus === 'selesai' || currentStatus === 'diambil') {
+                                paymentBox.style.display = 'block';
+                                valHargaFinal.textContent = 'Rp ' + new Intl.NumberFormat('id-ID').format(hargaBayar);
+                                btnBayar.dataset.id = pesanan.id_pesanan;
+                                
+                                btnBayar.addEventListener('click', function() {
+                                    const originalText = this.innerHTML;
+                                    this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
+                                    this.disabled = true;
+                                    
+                                    fetch('<?= base_url("payment/token") ?>', {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                            'Accept': 'application/json'
+                                        },
+                                        body: JSON.stringify({ id_pesanan: pesanan.id_pesanan })
+                                    })
+                                    .then(res => res.json())
+                                    .then(resData => {
+                                        this.innerHTML = originalText;
+                                        this.disabled = false;
+                                        
+                                        if (resData.status === 'success') {
+                                            snap.pay(resData.token, {
+                                                onSuccess: function(result){
+                                                    window.location.href = '<?= base_url("payment/success?id_pesanan=") ?>' + pesanan.id_pesanan;
+                                                },
+                                                onPending: function(result){
+                                                    Swal.fire({
+                                                        icon: 'info',
+                                                        title: 'Menunggu Pembayaran',
+                                                        text: 'Silakan selesaikan pembayaran Anda.',
+                                                        confirmButtonColor: '#ecad29',
+                                                        background: '#1e140d',
+                                                        color: '#fff'
+                                                    });
+                                                },
+                                                onError: function(result){
+                                                    Swal.fire({
+                                                        icon: 'error',
+                                                        title: 'Pembayaran Gagal',
+                                                        text: 'Maaf, transaksi pembayaran Anda gagal.',
+                                                        confirmButtonColor: '#e74c3c',
+                                                        background: '#1e140d',
+                                                        color: '#fff'
+                                                    });
+                                                },
+                                                onClose: function(){
+                                                    // customer closed popup
+                                                }
+                                            });
+                                        } else {
+                                            Swal.fire({
+                                                icon: 'error',
+                                                title: 'Oops...',
+                                                text: resData.message,
+                                                confirmButtonColor: '#ecad29',
+                                                background: '#1e140d',
+                                                color: '#fff'
+                                            });
+                                        }
+                                    })
+                                    .catch(err => {
+                                        this.innerHTML = originalText;
+                                        this.disabled = false;
+                                        Swal.fire({
+                                            icon: 'error',
+                                            title: 'Koneksi Bermasalah',
+                                            text: 'Terjadi kesalahan jaringan. Silakan coba lagi.',
+                                            confirmButtonColor: '#ecad29',
+                                            background: '#1e140d',
+                                            color: '#fff'
+                                        });
+                                    });
+                                });
+                            }
+                        }
 
                         // Set delay untuk animasi cascade
                         const cardElement = clone.querySelector('.order-card');
@@ -356,6 +511,13 @@ ob_start();
                 document.getElementById('errorText').textContent = 'Tidak dapat terhubung ke server. Periksa koneksi internet Anda.';
             });
         });
+
+        // Auto trigger search if keyword is present
+        <?php if (!empty($autoKeyword)): ?>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('btnSearch').click();
+        });
+        <?php endif; ?>
 </script>
 <?php
 $extra_js = ob_get_clean();

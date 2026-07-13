@@ -28,7 +28,7 @@ class BerandaController extends Controller
         // Convert array of objects to array of associative arrays for legacy view compatibility
         $kategori_array = json_decode(json_encode($kategori_objects), true);
         $layanan_raw = json_decode(json_encode($layanan_objects), true);
-        
+
         // Group layanan by id_kategori
         $layanan_by_kategori = [];
         if (is_array($layanan_raw)) {
@@ -36,7 +36,7 @@ class BerandaController extends Controller
                 $layanan_by_kategori[$row['id_kategori']][] = $row;
             }
         }
-        
+
         $data = [
             'kategori_array' => $kategori_array ?? [],
             'layanan_by_kategori' => $layanan_by_kategori
@@ -47,9 +47,9 @@ class BerandaController extends Controller
 
     public function detail_layanan(): void
     {
-        $id_layanan = isset($_GET['id']) ? intval($_GET['id']) : 0;
+        $slug = isset($_GET['slug']) ? trim($_GET['slug']) : '';
 
-        $layanan = $this->layananModel->getActiveLayananDetailById($id_layanan);
+        $layanan = $this->layananModel->getActiveLayananDetailBySlug($slug);
 
         if (!$layanan) {
             header("Location: " . base_url('front/beranda.php#jasa'));
@@ -85,5 +85,48 @@ class BerandaController extends Controller
         ];
 
         $this->view('front/detail_layanan', $data);
+    }
+
+    public function sendEmail(): void
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
+            $nama = htmlspecialchars($_POST['nama'] ?? '');
+            $pesan = htmlspecialchars($_POST['pesan'] ?? '');
+
+            $to = 'radhityahafifofficial@gmail.com';
+            $subject = 'Penawaran Kerja Sama Bisnis dari ' . $nama;
+
+            $mail = new \PHPMailer\PHPMailer\PHPMailer(true);
+
+            try {
+                // Server settings
+                $mail->isSMTP();
+                $mail->Host = 'smtp.gmail.com';
+                $mail->SMTPAuth = true;
+                $mail->Username = 'radhityahafifofficial@gmail.com'; // Ganti jika email pengirim beda
+                $mail->Password = 'ahljjlzrsebveyru'; // WAJIB DIGANTI dengan App Password Google
+                $mail->SMTPSecure = \PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_SMTPS; // Gunakan SMTPS (port 465)
+                $mail->Port = 465;
+
+                // Recipients
+                $mail->setFrom('radhityahafifofficial@gmail.com', 'Web Jasa Jahit');
+                $mail->addAddress($to);
+                $mail->addReplyTo($email, $nama);
+
+                // Content
+                $mail->isHTML(false);
+                $mail->Subject = $subject;
+                $mail->Body = "Nama/Instansi: " . $nama . "\nEmail: " . $email . "\n\nPesan Penawaran:\n" . $pesan;
+
+                $mail->send();
+                $_SESSION['berhasil'] = "Pesan penawaran kerja sama berhasil dikirim!";
+            } catch (\Exception $e) {
+                $_SESSION['berhasil'] = "Gagal mengirim pesan. Mailer Error: {$mail->ErrorInfo}";
+            }
+
+            header("Location: " . base_url('beranda#kontak'));
+            exit;
+        }
     }
 }

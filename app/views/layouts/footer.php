@@ -8,7 +8,7 @@
         </div>
         <div class="chat-title-text">
           <strong>Asisten AI Jadimulya</strong>
-          <span class="chat-status">Online via Qwen Hugging Face</span>
+          <span class="chat-status">Online via Google Gemini</span>
         </div>
       </div>
       <button type="button" class="close-btn" onclick="closeChatPopup()" aria-label="Tutup chat">&times;</button>
@@ -118,26 +118,26 @@
 
         <!-- LEFT : FORM -->
         <div class="contact-card">
-          <h2>Hubungi <span class="highlight">Kami</span></h2>
+          <h2>Kerja Sama <span class="highlight">Bisnis</span></h2>
           <p class="contact-desc">
-            Kirim pesan atau pertanyaan Anda terkait jasa jahit kami.
-            Kami siap membantu dengan sepenuh hati.
+            Tertarik untuk menjalin kemitraan atau kerja sama bisnis dengan Jahit Jadimulya? 
+            Kirimkan penawaran atau proposal Anda melalui form di bawah ini.
           </p>
 
-          <form class="contact-form" id="waForm">
+          <form class="contact-form" action="<?= base_url('beranda/send_email') ?>" method="POST">
             <div class="form-group">
-              <label>Email</label>
-              <input type="email" id="email" placeholder="email@example.com" required>
+              <label>Email Perusahaan / Pribadi</label>
+              <input type="email" id="email" name="email" placeholder="email@perusahaan.com" required>
             </div>
 
             <div class="form-group">
-              <label>Nama Lengkap</label>
-              <input type="text" id="nama" placeholder="Nama Anda" required>
+              <label>Nama Lengkap / Instansi</label>
+              <input type="text" id="nama" name="nama" placeholder="Nama Anda / Instansi" required>
             </div>
 
             <div class="form-group">
-              <label>Pesan</label>
-              <textarea id="pesan" rows="4" placeholder="Tuliskan pesan Anda..." required></textarea>
+              <label>Pesan Penawaran</label>
+              <textarea id="pesan" name="pesan" rows="4" placeholder="Tuliskan pesan penawaran kerja sama..." required></textarea>
             </div>
 
             <button type="submit" class="btn-submit">
@@ -518,7 +518,6 @@
   <script src="<?= base_url('public/js/script.js') ?>"></script>
   <script src="<?= base_url('public/js/burgermenu.js') ?>"></script>
   <script src="<?= base_url('public/js/faq.js') ?>"></script>
-  <script src="<?= base_url('public/js/whatsapp-form.js') ?>"></script>
   <script src="<?= base_url('public/js/backtotop.js') ?>"></script>
 
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

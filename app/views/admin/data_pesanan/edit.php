@@ -357,10 +357,52 @@
                 </div>
             </section>
 
-            <!-- STEP 4: Catatan & Status -->
-            <h5>Catatan & Status</h5>
+            <!-- STEP 4: Rincian Tambahan & Status -->
+            <h5>Rincian Tambahan & Status</h5>
             <section>
                 <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Opsi Bahan</label>
+                            <select name="opsi_bahan" id="opsi_bahan" class="custom-select2 form-control" style="width: 100%; height: 38px">
+                                <option value="Bawa Bahan Sendiri" data-price="0" <?= ($pesanan->opsi_bahan == 'Bawa Bahan Sendiri') ? 'selected' : '' ?>>Bawa Bahan Sendiri</option>
+                                <option value="Bahan Standar (Disediakan)" data-price="50000" <?= ($pesanan->opsi_bahan == 'Bahan Standar (Disediakan)') ? 'selected' : '' ?>>Bahan Standar (Disediakan)</option>
+                                <option value="Bahan Premium (Disediakan)" data-price="150000" <?= ($pesanan->opsi_bahan == 'Bahan Premium (Disediakan)') ? 'selected' : '' ?>>Bahan Premium (Disediakan)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Opsi Kerumitan</label>
+                            <select name="opsi_kerumitan" id="opsi_kerumitan" class="custom-select2 form-control" style="width: 100%; height: 38px">
+                                <option value="Standar (Tanpa Payet)" data-price="0" <?= ($pesanan->opsi_kerumitan == 'Standar (Tanpa Payet)') ? 'selected' : '' ?>>Standar (Tanpa Payet)</option>
+                                <option value="Bordir / Payet Ringan" data-price="50000" <?= ($pesanan->opsi_kerumitan == 'Bordir / Payet Ringan') ? 'selected' : '' ?>>Bordir / Payet Ringan</option>
+                                <option value="Payet Sedang" data-price="100000" <?= ($pesanan->opsi_kerumitan == 'Payet Sedang') ? 'selected' : '' ?>>Payet Sedang</option>
+                                <option value="Payet Full / Custom" data-price="200000" <?= ($pesanan->opsi_kerumitan == 'Payet Full / Custom') ? 'selected' : '' ?>>Payet Full / Custom</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Estimasi Harga</label>
+                            <input type="number" name="estimasi_harga" id="estimasi_harga" class="form-control" value="<?= htmlspecialchars($pesanan->estimasi_harga ?? '') ?>" placeholder="Contoh: 25000">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Harga Final (Rp)</label>
+                            <input type="number" name="harga_final" id="harga_final" class="form-control" value="<?= htmlspecialchars($pesanan->harga_final ?? '') ?>" placeholder="Input harga setelah fix/deal">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Status Pembayaran</label>
+                            <select name="status_pembayaran" id="status_pembayaran" class="custom-select2 form-control" required style="width: 100%; height: 38px">
+                                <option value="belum_bayar" <?= (isset($pesanan->status_pembayaran) && $pesanan->status_pembayaran == 'belum_bayar') ? 'selected' : '' ?>>Belum Bayar</option>
+                                <option value="lunas" <?= (isset($pesanan->status_pembayaran) && $pesanan->status_pembayaran == 'lunas') ? 'selected' : '' ?>>Lunas</option>
+                            </select>
+                        </div>
+                    </div>
                     <div class="col-md-12">
                         <div class="form-group">
                             <label>Catatan Pesanan</label>
@@ -370,7 +412,7 @@
                                 placeholder="Masukkan catatan pesanan (opsional)"><?= htmlspecialchars($pesanan->catatan) ?></textarea>
                         </div>
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-12">
                         <div class="form-group">
                             <label>Status Pesanan</label>
                             <select name="status_pesanan" class="custom-select2 form-control" id="status_pesanan" required style="width: 100%; height: 38px">
@@ -401,14 +443,10 @@ $(document).ready(function () {
 
         if (ukuran === 'Custom') {
             $('#wrap-ukuran-custom').slideDown();
-            $('#wrap-ukuran-custom')
-                .find('input, select')
-                .prop('required', true);
         } else {
             $('#wrap-ukuran-custom').slideUp();
             $('#wrap-ukuran-custom')
                 .find('input, select')
-                .prop('required', false)
                 .val('');
         }
     }
@@ -434,6 +472,21 @@ $(document).ready(function () {
 
         $('#harga_mulai').val(harga ?? '');
         $('#estimasi_hari').val(estimasi ?? '');
+        kalkulasiEstimasiHarga();
+    });
+
+    // Kalkulasi otomatis Estimasi Harga di Step 4
+    function kalkulasiEstimasiHarga() {
+        let hargaBase = parseInt($('#id_layanan').find(':selected').data('harga')) || 0;
+        let hargaBahan = parseInt($('#opsi_bahan').find(':selected').data('price')) || 0;
+        let hargaKerumitan = parseInt($('#opsi_kerumitan').find(':selected').data('price')) || 0;
+
+        let total = hargaBase + hargaBahan + hargaKerumitan;
+        $('#estimasi_harga').val(total);
+    }
+
+    $('#opsi_bahan, #opsi_kerumitan').on('change.select2 change', function() {
+        kalkulasiEstimasiHarga();
     });
 
     // Submit via Finish button

@@ -5,7 +5,33 @@ require_once __DIR__ . '/../config/function.php';
 require_once __DIR__ . '/../core/Controller.php';
 
 class LoginController extends Controller {
+    public function generateToken() {
+        // Generate a random 16 character string
+        $token = bin2hex(random_bytes(8));
+        $_SESSION['admin_login_token'] = $token;
+        
+        // Redirect to the secret URL
+        header("Location: " . base_url($token));
+        exit();
+    }
+
     public function index() {
+        // Prevent access if token is not set
+        if (!isset($_SESSION['admin_login_token'])) {
+            http_response_code(404);
+            $this->view('errors/404');
+            exit();
+        }
+        $this->view('auth/admin_login');
+    }
+
+    public function login() {
+        if (!isset($_SESSION['admin_login_token'])) {
+            http_response_code(404);
+            $this->view('errors/404');
+            exit();
+        }
+
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
             $identitas = $_POST['identitas'];
             $password = $_POST['password'];
@@ -13,7 +39,7 @@ class LoginController extends Controller {
             $loginModel = $this->model('Login');
             $user = $loginModel->getUserByEmailOrPhone($identitas);
 
-            if ($user) {
+            if ($user && $user->role === 'admin') {
                 if (password_verify($password, $user->password)) {
                     if ($user->status == 'Aktif') {
                         $_SESSION['login'] = true;
@@ -24,26 +50,19 @@ class LoginController extends Controller {
                         $_SESSION['email'] = $user->email;
                         $_SESSION['foto'] = $user->foto;
 
-                        // Redirect based on role
-                        if ($user->role === 'admin') {
-                            header("Location: " . base_url('admin/dashboard/dashboard'));
-                            exit();
-                        } else {
-                            header("Location: " . base_url('beranda'));
-                            exit();
-                        }
+                        header("Location: " . base_url('admin/dashboard/dashboard'));
+                        exit();
                     } else {
-                        $_SESSION["gagal"] = "Akun Anda belum aktif";
+                        $_SESSION["gagal"] = "Akun Admin Anda belum aktif";
                     }
                 } else {
                     $_SESSION["gagal"] = "Password salah, silahkan coba lagi";
                 }
             } else {
-                $_SESSION["gagal"] = "Username/Email salah, silahkan coba lagi";
+                $_SESSION["gagal"] = "Kredensial Admin salah atau tidak memiliki akses";
             }
         }
 
-        // Render the login view
-        $this->view('auth/login');
+        $this->view('auth/admin_login');
     }
 }

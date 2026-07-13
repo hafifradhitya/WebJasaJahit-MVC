@@ -24,6 +24,12 @@ class User {
         return $this->db->single();
     }
 
+    public function getUserByPhone(string $no_telepon) {
+        $this->db->query("SELECT * FROM users WHERE no_telepon = :no_telepon LIMIT 1");
+        $this->db->bind(':no_telepon', $no_telepon);
+        return $this->db->single();
+    }
+
     public function getLastUserCode(string $prefix) {
         $this->db->query("SELECT kode_user FROM users WHERE kode_user LIKE :prefix ORDER BY kode_user DESC LIMIT 1");
         $this->db->bind(':prefix', $prefix . '%');

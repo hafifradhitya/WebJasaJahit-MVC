@@ -1,13 +1,15 @@
 <?php
-class Database {
+class Database
+{
     private string $host = 'localhost';
     private string $user = 'root';
     private string $pass = '';
-    private string $dbname = 'webjasajahit_mvc';
+    private string $dbname = 'webjasajahit_mvc_official';
     private PDO $dbh;
     private $stmt;
 
-    public function __construct() {
+    public function __construct()
+    {
         $dsn = "mysql:host={$this->host};dbname={$this->dbname};charset=utf8mb4";
         $options = [
             PDO::ATTR_PERSISTENT => true,
@@ -20,11 +22,13 @@ class Database {
         }
     }
 
-    public function query(string $query): void {
+    public function query(string $query): void
+    {
         $this->stmt = $this->dbh->prepare($query);
     }
 
-    public function bind(string $param, mixed $value, int $type = null): void {
+    public function bind(string $param, mixed $value, int $type = null): void
+    {
         if (is_null($type)) {
             $type = match (true) {
                 is_int($value) => PDO::PARAM_INT,
@@ -36,37 +40,45 @@ class Database {
         $this->stmt->bindValue($param, $value, $type);
     }
 
-    public function execute(): bool {
+    public function execute(): bool
+    {
         return $this->stmt->execute();
     }
 
-    public function resultSet(): array {
+    public function resultSet(): array
+    {
         $this->execute();
         return $this->stmt->fetchAll(PDO::FETCH_OBJ);
     }
 
-    public function single(): object|false {
+    public function single(): object|false
+    {
         $this->execute();
         return $this->stmt->fetch(PDO::FETCH_OBJ);
     }
 
-    public function rowCount(): int {
+    public function rowCount(): int
+    {
         return $this->stmt->rowCount();
     }
 
-    public function lastInsertId(): string|false {
+    public function lastInsertId(): string|false
+    {
         return $this->dbh->lastInsertId();
     }
 
-    public function beginTransaction(): bool {
+    public function beginTransaction(): bool
+    {
         return $this->dbh->beginTransaction();
     }
 
-    public function commit(): bool {
+    public function commit(): bool
+    {
         return $this->dbh->commit();
     }
 
-    public function rollback(): bool {
+    public function rollback(): bool
+    {
         return $this->dbh->rollBack();
     }
 }

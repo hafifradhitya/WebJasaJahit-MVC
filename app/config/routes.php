@@ -6,10 +6,12 @@ $router->get('/front/beranda.php', 'BerandaController@index');
 $router->get('/detail_layanan.php', 'BerandaController@detail_layanan');
 $router->get('/front/detail_layanan.php', 'BerandaController@detail_layanan');
 $router->get('/detail_layanan', 'BerandaController@detail_layanan');
+$router->post('/beranda/send_email', 'BerandaController@sendEmail');
+
+// Checkout Route (Website Order)
+$router->post('/checkout/process', 'CheckoutController@process');
 
 // Auth Routes
-$router->get('/auth/login', 'LoginController@index');
-$router->post('/auth/login', 'LoginController@index');
 $router->get('/auth/register', 'RegisterController@index');
 $router->post('/auth/register', 'RegisterController@register');
 $router->get('/auth/logout', 'LogoutController@logout');
@@ -22,9 +24,25 @@ $router->get('/lacak', 'TrackingController@index');
 $router->post('/lacak/search', 'TrackingController@search');
 $router->get('/auth/logout.php', 'LogoutController@logout');
 
+// Payment Routes
+$router->post('/payment/token', 'PaymentController@token');
+$router->post('/payment/webhook', 'PaymentController@webhook');
+$router->get('/payment/success', 'PaymentController@success');
+
+// Admin Secret Login entry point
+$router->get('/dashboard/portal-admin-webjasajahit', 'LoginController@generateToken');
+
+// Dynamic random char route for Admin Login
+if (isset($_SESSION['admin_login_token'])) {
+    $token = $_SESSION['admin_login_token'];
+    $router->get('/' . $token, 'LoginController@index');
+    $router->post('/' . $token, 'LoginController@login');
+}
+
 // Admin Routes
 $router->get('/admin/dashboard/dashboard', 'DashboardController@index');
 $router->get('/admin/dashboard', 'DashboardController@index');
+$router->post('/admin/dashboard/chart_data', 'DashboardController@chartData');
 $router->get('/admin/search', 'SearchController@index');
 $router->get('/admin/profile', 'ProfileController@index');
 $router->post('/admin/profile', 'ProfileController@index');
@@ -69,6 +87,7 @@ $router->get('/admin/data_pesanan/edit', 'PesananController@edit');
 $router->post('/admin/data_pesanan/edit', 'PesananController@edit');
 $router->get('/admin/data_pesanan/detail', 'PesananController@detail');
 $router->get('/admin/data_pesanan/hapus', 'PesananController@hapus');
+$router->post('/admin/data_pesanan/update_status', 'PesananController@updateStatus');
 $router->get('/admin/data_pesanan/pesananmenunggu', 'PesananController@pesananmenunggu');
 $router->get('/admin/data_pesanan/pesanandiproses', 'PesananController@pesanandiproses');
 $router->get('/admin/data_pesanan/pesananselesaidiambil', 'PesananController@pesananselesaidiambil');

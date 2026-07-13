@@ -333,10 +333,52 @@
                 </div>
             </section>
 
-            <!-- STEP 4: Catatan -->
-            <h5>Catatan</h5>
+            <!-- STEP 4: Rincian Tambahan -->
+            <h5>Rincian Tambahan</h5>
             <section>
                 <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Opsi Bahan</label>
+                            <select name="opsi_bahan" id="opsi_bahan" class="custom-select2 form-control" style="width: 100%; height: 38px">
+                                <option value="Bawa Bahan Sendiri" data-price="0">Bawa Bahan Sendiri</option>
+                                <option value="Bahan Standar (Disediakan)" data-price="50000">Bahan Standar (Disediakan)</option>
+                                <option value="Bahan Premium (Disediakan)" data-price="150000">Bahan Premium (Disediakan)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Opsi Kerumitan</label>
+                            <select name="opsi_kerumitan" id="opsi_kerumitan" class="custom-select2 form-control" style="width: 100%; height: 38px">
+                                <option value="Standar (Tanpa Payet)" data-price="0">Standar (Tanpa Payet)</option>
+                                <option value="Bordir / Payet Ringan" data-price="50000">Bordir / Payet Ringan</option>
+                                <option value="Payet Sedang" data-price="100000">Payet Sedang</option>
+                                <option value="Payet Full / Custom" data-price="200000">Payet Full / Custom</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Estimasi Harga</label>
+                            <input type="number" name="estimasi_harga" id="estimasi_harga" class="form-control" placeholder="Contoh: 25000">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Harga Final (Rp)</label>
+                            <input type="number" name="harga_final" id="harga_final" class="form-control" placeholder="Input harga setelah fix/deal">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Status Pembayaran</label>
+                            <select name="status_pembayaran" id="status_pembayaran" class="custom-select2 form-control" required style="width: 100%; height: 38px">
+                                <option value="belum_bayar" selected>Belum Bayar</option>
+                                <option value="lunas">Lunas</option>
+                            </select>
+                        </div>
+                    </div>
                     <div class="col-md-12">
                         <div class="form-group">
                             <label>Catatan Pesanan</label>
@@ -398,6 +440,21 @@ $(document).ready(function () {
 
         $('#harga_mulai').val(harga ?? '');
         $('#estimasi_hari').val(estimasi ?? '');
+        kalkulasiEstimasiHarga();
+    });
+
+    // Kalkulasi otomatis Estimasi Harga di Step 4
+    function kalkulasiEstimasiHarga() {
+        let hargaBase = parseInt($('#id_layanan').find(':selected').data('harga')) || 0;
+        let hargaBahan = parseInt($('#opsi_bahan').find(':selected').data('price')) || 0;
+        let hargaKerumitan = parseInt($('#opsi_kerumitan').find(':selected').data('price')) || 0;
+
+        let total = hargaBase + hargaBahan + hargaKerumitan;
+        $('#estimasi_harga').val(total);
+    }
+
+    $('#opsi_bahan, #opsi_kerumitan').on('change.select2 change', function() {
+        kalkulasiEstimasiHarga();
     });
 
     // Submit via Finish button

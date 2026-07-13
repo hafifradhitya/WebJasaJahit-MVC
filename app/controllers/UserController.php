@@ -8,10 +8,12 @@ class UserController extends Controller {
 
     private function checkAuth() {
         if (!isset($_SESSION['login'])) {
-            header("Location: " . base_url('auth/login?pesan=belum_login'));
+            http_response_code(404);
+            $this->view('errors/404');
             exit();
         } else if ($_SESSION["role"] != 'admin') {
-            header("Location: " . base_url('auth/login?pesan=tolak_akses'));
+            http_response_code(404);
+            $this->view('errors/404');
             exit();
         }
     }
