@@ -348,6 +348,12 @@ if (session_status() === PHP_SESSION_NONE) {
       right: 26px !important;
     }
 
+    .wa-left {
+      bottom: 168px !important;
+      left: 26px !important;
+      right: auto !important;
+    }
+
     .back-to-top {
       bottom: 168px !important;
       right: 26px !important;
@@ -357,6 +363,12 @@ if (session_status() === PHP_SESSION_NONE) {
       .wa-golden {
         bottom: 86px !important;
         right: 18px !important;
+      }
+
+      .wa-left {
+        bottom: 154px !important;
+        left: 18px !important;
+        right: auto !important;
       }
 
       .back-to-top {
@@ -885,13 +897,13 @@ if (session_status() === PHP_SESSION_NONE) {
           </div>
         </div>
 
-        <a href="<?= base_url('pelanggan/fitur_lainnya/profile.php') ?>" class="mobile-menu-link secondary">
+        <a href="<?= base_url('admin/profile') ?>" class="mobile-menu-link secondary">
           <i class="fas fa-user"></i> Profil
         </a>
         <a href="javascript:void(0)" class="mobile-menu-link secondary" onclick="openChatPopup()">
           <i class="fas fa-comments"></i> Chat
         </a>
-        <a href="<?= base_url('auth/logout.php') ?>" class="mobile-menu-link secondary danger">
+        <a href="<?= base_url('auth/logout') ?>" class="mobile-menu-link secondary danger">
           <i class="fas fa-sign-out-alt"></i> Logout
         </a>
 

@@ -27,13 +27,19 @@
     </button>
   </div>
 
-  <!-- WHATSAPP FLOAT GOLDEN -->
+  <!-- CHATBOT FLOAT GOLDEN (Kiri Atas) -->
   <button type="button" id="aiFloatingButton" class="ai-golden" onclick="toggleChatPopup()" aria-label="Chat customer service">
     <i class="fas fa-headset"></i>
   </button>
-  <a href="https://wa.me/6285720301295?text=Halo%20saya%20ingin%20konsultasi%20jasa%20jahit" class="wa-golden"
-    target="_blank" aria-label="Chat WhatsApp Ja sa Jahit">
+
+  <!-- WHATSAPP FLOAT GOLDEN (Kiri Bawah) -->
+  <a href="https://wa.me/6285720301295?text=Halo%20saya%20ingin%20konsultasi%20jasa%20jahit" class="wa-golden wa-left" target="_blank" aria-label="Chat WhatsApp Jasa Jahit" style="text-decoration: none;">
     <i class="fab fa-whatsapp"></i>
+  </a>
+
+  <!-- PESAN FLOAT GOLDEN (Kanan) -->
+  <a href="<?= base_url('#jasa') ?>" class="wa-golden" aria-label="Tambah Pesanan" style="text-decoration: none;">
+    <i class="fas fa-shopping-cart"></i>
   </a>
 
 

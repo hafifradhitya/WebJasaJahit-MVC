@@ -249,7 +249,6 @@ global $judul;
 					<div
 						class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list">
 						<a class="dropdown-item" href="<?= base_url('admin/profile') ?>"><i class="dw dw-user1"></i> Profile</a>
-						<a class="dropdown-item" href="<?= base_url('admin/profile/ubah_password') ?>"><i class="dw dw-settings2"></i> Ubah Password</a>
 						<a class="dropdown-item" href="<?= base_url('auth/logout') ?>"><i class="dw dw-logout"></i> Log Out</a>
 					</div>
 				</div>

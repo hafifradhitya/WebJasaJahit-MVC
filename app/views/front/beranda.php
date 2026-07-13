@@ -201,7 +201,7 @@
                 <h2 class="title-timeline">From Fabric to Fit</h2>
               </div>
               <p class="paragraph-large">
-                Setiap langkah kami kerjakan dengan presisi, detail, dan rasa â€”
+                Setiap langkah kami kerjakan dengan presisi, detail, dan rasa -
                 memastikan setiap jahitan mencerminkan kualitas dan karakter Anda.
               </p>
             </div>
@@ -233,7 +233,7 @@
                 <div class="timeline_text">
                   Konsultasi & Pengukuran
                   <span class="text-colour-lightgrey">
-                    â€” kami mendengarkan kebutuhan dan mengambil ukuran secara detail.
+                    - kami mendengarkan kebutuhan dan mengambil ukuran secara detail.
                   </span>
                 </div>
               </div>
@@ -253,7 +253,7 @@
                 <div class="timeline_text">
                   Pemilihan Kain
                   <span class="text-colour-lightgrey">
-                    â€” bahan terbaik disesuaikan dengan fungsi dan karakter.
+                    - bahan terbaik disesuaikan dengan fungsi dan karakter.
                   </span>
                 </div>
               </div>
@@ -290,7 +290,7 @@
                 <div class="timeline_text">
                   Pola & Potong
                   <span class="text-colour-lightgrey">
-                    â€” presisi pola menentukan hasil akhir yang sempurna.
+                    - presisi pola menentukan hasil akhir yang sempurna.
                   </span>
                 </div>
               </div>
@@ -309,7 +309,7 @@
                 <div class="timeline_text">
                   Jahit & Finishing
                   <span class="text-colour-lightgrey">
-                    â€” detail halus pada setiap jahitan.
+                    - detail halus pada setiap jahitan.
                   </span>
                 </div>
               </div>
@@ -344,7 +344,7 @@
                 <div class="timeline_text">
                   Fitting Akhir
                   <span class="text-colour-lightgrey">
-                    â€” memastikan kenyamanan dan kesempurnaan.
+                    - memastikan kenyamanan dan kesempurnaan.
                   </span>
                 </div>
               </div>
@@ -369,7 +369,7 @@
     <div class="km-container">
       <h2>Workshop & Proses Jahit Kami</h2>
       <h3 class="km-intro">
-        Setiap detail kami kerjakan langsung di workshop kami â€” mulai dari
+        Setiap detail kami kerjakan langsung di workshop kami - mulai dari
         pengukuran, pemilihan kain, hingga finishing akhir dengan standar kualitas tinggi.
       </h3>
 

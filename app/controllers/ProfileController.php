@@ -23,12 +23,26 @@ class ProfileController extends Controller {
             $email = htmlspecialchars($_POST['email']);
             $telp = htmlspecialchars($_POST['no_telepon']);
             
+            $password_baru = $_POST['password_baru'] ?? '';
+            $ulangi_password_baru = $_POST['ulangi_password_baru'] ?? '';
+            
             $data = [
                 'id_user' => $id_user,
                 'nama_lengkap' => $nama,
                 'email' => $email,
                 'no_telepon' => $telp
             ];
+
+            if (!empty($password_baru) || !empty($ulangi_password_baru)) {
+                if ($password_baru !== $ulangi_password_baru) {
+                    $_SESSION['validasi'] = "<i class='fa fa-times'></i> Password tidak cocok!";
+                    header("Location: " . base_url('admin/profile'));
+                    exit();
+                } else {
+                    $password_hash = password_hash($password_baru, PASSWORD_DEFAULT);
+                    $profileModel->updatePassword($id_user, $password_hash);
+                }
+            }
 
             if (!empty($_FILES['foto']['name'])) {
                 $foto_name = time() . '_' . basename($_FILES['foto']['name']);
@@ -48,7 +62,7 @@ class ProfileController extends Controller {
             }
 
             if ($profileModel->updateProfile($data)) {
-                $_SESSION['berhasil'] = 'Data berhasil diupdate.';
+                $_SESSION['berhasil'] = 'Data profile ' . (!empty($password_baru) ? '& password ' : '') . 'berhasil diupdate.';
                 $_SESSION['nama_lengkap'] = $nama;
                 $_SESSION['email'] = $email;
                 $_SESSION['no_telepon'] = $telp;
@@ -72,46 +86,4 @@ class ProfileController extends Controller {
         $this->view('admin/profile/index', $data);
     }
 
-    public function ubahPassword() {
-        $this->checkAuth();
-        $id_user = $_SESSION['id_user'];
-        $profileModel = $this->model('Profile');
-
-        if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update'])) {
-            $password_baru = $_POST['password_baru'];
-            $ulangi_password_baru = $_POST['ulangi_password_baru'];
-
-            $pesan_kesalahan = [];
-
-            if (empty($password_baru)) {
-                $pesan_kesalahan[] = "<i class='fa fa-times'></i> Password baru wajib diisi";
-            }
-            if (empty($ulangi_password_baru)) {
-                $pesan_kesalahan[] = "<i class='fa fa-times'></i> Ulangi password baru wajib diisi";
-            }
-            if ($password_baru !== $ulangi_password_baru) {
-                $pesan_kesalahan[] = "<i class='fa fa-times'></i> Password tidak cocok";
-            }
-
-            if (!empty($pesan_kesalahan)) {
-                $_SESSION['validasi'] = implode("<br>", $pesan_kesalahan);
-            } else {
-                $password_hash = password_hash($password_baru, PASSWORD_DEFAULT);
-                $profileModel->updatePassword($id_user, $password_hash);
-                $_SESSION['berhasil'] = 'Password berhasil diubah';
-                header("Location: " . base_url('admin/profile/ubah_password'));
-                exit();
-            }
-        }
-
-        $data = [
-            'judul' => 'Ubah Password',
-            'no_preloader' => true
-        ];
-
-        $GLOBALS['judul'] = $data['judul'];
-        $GLOBALS['no_preloader'] = $data['no_preloader'];
-
-        $this->view('admin/profile/ubah_password', $data);
-    }
 }

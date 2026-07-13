@@ -250,3 +250,19 @@ body {
 .container.active .toggle-right {
     transform: translateX(200%);
 }
+
+/* RESPONSIVE MOBILE VIEW */
+@media screen and (max-width: 768px) {
+    .container {
+        width: 90%;
+        border-radius: 20px;
+        min-height: 400px;
+    }
+    .form-container.sign-in {
+        width: 100%;
+        padding: 0 20px;
+    }
+    .toggle-container {
+        display: none;
+    }
+}

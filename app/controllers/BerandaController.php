@@ -37,8 +37,18 @@ class BerandaController extends Controller
             }
         }
 
+        // Filter kategori: hanya tampilkan kategori yang memiliki layanan aktif
+        $kategori_aktif_array = [];
+        if (is_array($kategori_array)) {
+            foreach ($kategori_array as $kategori) {
+                if (isset($layanan_by_kategori[$kategori['id_kategori']])) {
+                    $kategori_aktif_array[] = $kategori;
+                }
+            }
+        }
+
         $data = [
-            'kategori_array' => $kategori_array ?? [],
+            'kategori_array' => $kategori_aktif_array,
             'layanan_by_kategori' => $layanan_by_kategori
         ];
 
