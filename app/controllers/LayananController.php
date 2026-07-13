@@ -18,7 +18,7 @@ class LayananController extends Controller {
         $this->checkAuth();
 
         $layananModel = $this->model('Layanan');
-        $layanans = $layananModel->getActiveLayananWithKategori();
+        $layanans = $layananModel->getAllLayananWithKategori();
 
         // var_dump($layanans);
         // die();

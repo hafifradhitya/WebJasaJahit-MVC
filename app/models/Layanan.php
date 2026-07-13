@@ -8,6 +8,27 @@ class Layanan {
         $this->db = $db;
     }
 
+    public function getAllLayananWithKategori(): array {
+        $this->db->query("
+            SELECT 
+                layanan.id_layanan,
+                layanan.nama_layanan,  
+                layanan.slug,
+                layanan.deskripsi,
+                layanan.foto,
+                layanan.harga_mulai,
+                layanan.estimasi_hari,
+                layanan.status,
+                layanan.id_kategori,
+                kategori.nama_kategori
+            FROM layanan
+            JOIN kategori 
+                ON layanan.id_kategori = kategori.id_kategori
+            ORDER BY layanan.id_layanan DESC
+        ");
+        return $this->db->resultSet();
+    }
+
     public function getActiveLayananWithKategori(): array {
         $this->db->query("
             SELECT 

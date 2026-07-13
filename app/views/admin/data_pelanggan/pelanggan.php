@@ -27,7 +27,7 @@
                     <th>Nama Lengkap</th>
                     <th>Email</th>
                     <th>No. Telepon</th>
-                    <th>Status & Role</th>
+                    <th>Status</th>
                     <th>Kode User</th>
                     <th class="datatable-nosort">Action</th>
                 </tr>
@@ -50,11 +50,6 @@
                                     <span class="badge badge-success"><?= ucfirst($user->status) ?></span>
                                 <?php else: ?>
                                     <span class="badge badge-danger"><?= ucfirst($user->status) ?></span>
-                                <?php endif; ?>
-                                <?php if(strtolower($user->role) == 'admin'): ?>
-                                    <span class="badge badge-primary"><?= ucfirst($user->role) ?></span>
-                                <?php else: ?>
-                                    <span class="badge badge-warning"><?= ucfirst($user->role) ?></span>
                                 <?php endif; ?>
                             </td>
 

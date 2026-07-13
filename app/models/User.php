@@ -9,7 +9,7 @@ class User {
     }
 
     public function getAllUsers() {
-        $this->db->query("SELECT id_user, nama_lengkap, password, status, role, foto, email, no_telepon, kode_user FROM users");
+        $this->db->query("SELECT id_user, nama_lengkap, password, status, role, foto, email, no_telepon, kode_user FROM users WHERE LOWER(role) != 'admin'");
         return $this->db->resultSet();
     }
 

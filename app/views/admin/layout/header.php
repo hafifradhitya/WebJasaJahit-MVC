@@ -204,7 +204,7 @@ global $judul;
 								<?php if ($jumlahNotif > 0): ?>
 									<?php foreach ($notifPesananBaru as $notif): ?>
 										<li>
-											<a href="<?= base_url('admin/data_pesanan/pesananmenunggu') ?>">
+											<a href="<?= base_url('admin/data_pesanan/detail?id_pesanan=' . $notif->id_pesanan) ?>">
 												<img src="<?= base_url('public/img/foto_pelanggan/' . (!empty($notif->foto) ? $notif->foto : 'default.jpg')) ?>" alt="" />
 												<h3><?= htmlspecialchars($notif->nama_lengkap) ?></h3>
 												<p>
@@ -262,7 +262,7 @@ global $judul;
 
 	<div class="left-side-bar">
 		<div class="brand-logo">
-			<a href="index.html">
+			<a href="<?= base_url('admin/dashboard/dashboard') ?>">
 				<img src="<?= base_url('public/img/logo/logo-jasa-jahit-dark.png') ?>" alt="" class="dark-logo" />
 				<img
 					src="<?= base_url('public/img/logo/logo-jasa-jahit.png') ?>"

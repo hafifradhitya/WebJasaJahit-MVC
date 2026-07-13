@@ -66,29 +66,8 @@
                 </select>
             </div>
         </div>
-        <div class="form-group row">
-            <label class="col-sm-12 col-md-2 col-form-label">Password</label>
-            <div class="col-sm-12 col-md-10">
-                <input type="hidden" value="<?= $user->password ?? '' ?>" name="password_lama">
-                <input
-                    name="password"
-                    class="form-control"
-                    type="password"
-                    placeholder="kosongkan password jika tidak ingin diganti" />
-            </div>
-        </div>
-        <div class="form-group row">
-            <label class="col-sm-12 col-md-2 col-form-label">Ulangi Password</label>
-            <div class="col-sm-12 col-md-10">
-                <input
-                    name="ulangi_password"
-                    class="form-control"
-                    placeholder="Ulangi Password"
-                    type="password" />
-            </div>
-        </div>
-
         <input type="hidden" value="<?= $user->kode_user ?? '' ?>" name="kode_user">
+        <input type="hidden" value="<?= $user->password ?? '' ?>" name="password_lama">
         <input type="hidden" name="method" value="edit">
 
         <div class="form-group row">

@@ -59,7 +59,7 @@ class UserController extends Controller {
             $email = htmlspecialchars($_POST['email']);
             $status = htmlspecialchars($_POST['status']);
             $no_telepon = htmlspecialchars($_POST['no_telepon']);
-            $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+            $password = password_hash('123456', PASSWORD_DEFAULT); // Default password
             $role = htmlspecialchars($_POST['role']);
 
             $nama_file = "default.png";
@@ -97,8 +97,7 @@ class UserController extends Controller {
             if (empty($status)) $pesan_kesalahan[] = "<i class='fa-solid fa fa-check'></i> Status wajib diisi";
             if (empty($no_telepon)) $pesan_kesalahan[] = "<i class='fa-solid fa fa-check'></i> No. Telepon wajib diisi";
             if (empty($role)) $pesan_kesalahan[] = "<i class='fa-solid fa fa-check'></i> Role wajib diisi";
-            if (empty($_POST['password'])) $pesan_kesalahan[] = "<i class='fa-solid fa fa-check'></i> Password wajib diisi";
-            if ($_POST['password'] != $_POST['ulangi_password']) $pesan_kesalahan[] = "<i class='fa-solid fa fa-check'></i> Password tidak cocok";
+
 
             if (!empty($pesan_kesalahan)) {
                 $_SESSION['validasi'] = implode("<br>", $pesan_kesalahan);
@@ -144,10 +143,6 @@ class UserController extends Controller {
             $role = htmlspecialchars($_POST['role']);
             $password = $_POST['password_lama'];
             
-            if (!empty($_POST['password'])) {
-                $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
-            }
-            
             $nama_file = $_POST['foto_lama'];
             $pesan_kesalahan = [];
 
@@ -180,9 +175,7 @@ class UserController extends Controller {
             if(empty($status)) $pesan_kesalahan[] = "<i class='fa-solid fa fa-check'></i> Status wajib diisi";
             if(empty($no_telepon)) $pesan_kesalahan[] = "<i class='fa-solid fa fa-check'></i> No. telepon wajib diisi";
             if(empty($role)) $pesan_kesalahan[] = "<i class='fa-solid fa-check'></i> Role wajib diisi";
-            if(!empty($_POST['password']) && $_POST['password'] != $_POST['ulangi_password']) {
-                $pesan_kesalahan[] = "<i class='fa-solid fa fa-check'></i> Password tidak cocok";
-            }
+
 
             if (!empty($pesan_kesalahan)) {
                 $_SESSION['validasi'] = implode("<br>", $pesan_kesalahan);

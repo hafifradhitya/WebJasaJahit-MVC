@@ -67,26 +67,7 @@
                 </select>
             </div>
         </div>
-        <div class="form-group row">
-            <label class="col-sm-12 col-md-2 col-form-label">Password</label>
-            <div class="col-sm-12 col-md-10">
-                <input
-                    name="password"
-                    class="form-control"
-                    placeholder="Masukkan Password"
-                    type="password" />
-            </div>
-        </div>
-        <div class="form-group row">
-            <label class="col-sm-12 col-md-2 col-form-label">Ulangi Password</label>
-            <div class="col-sm-12 col-md-10">
-                <input
-                    name="ulangi_password"
-                    class="form-control"
-                    placeholder="Ulangi Password"
-                    type="password" />
-            </div>
-        </div>
+
         <div class="form-group row">
             <div class="col-md-12 text-right">
                 <button type="submit" class="btn btn-primary" name="submit">

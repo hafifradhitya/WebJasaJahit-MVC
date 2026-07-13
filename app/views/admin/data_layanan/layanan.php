@@ -53,9 +53,9 @@
                             <td><?= $layanan->estimasi_hari ?> Hari</td>
                             <td>
                                 <?php if ($layanan->status == 'Aktif') : ?>
-                                    <span class="badge badge-success">Aktif</span>
+                                    <span class="badge badge-success">Tersedia</span>
                                 <?php else : ?>
-                                    <span class="badge badge-secondary">Tidak Aktif</span>
+                                    <span class="badge badge-secondary">Tidak Tersedia</span>
                                 <?php endif; ?>
                             </td> 
                             <td>

@@ -93,8 +93,8 @@
             <div class="col-sm-12 col-md-10">
                 <select name="status" class="custom-select col-12" required>
                     <option value="">-- Pilih Status --</option>
-                    <option value="Aktif" <?= ($layanan->status == 'Aktif') ? 'selected' : '' ?>>Aktif</option>
-                    <option value="Tidak Aktif" <?= ($layanan->status == 'Tidak Aktif') ? 'selected' : '' ?>>Tidak Aktif</option>
+                    <option value="Aktif" <?= ($layanan->status == 'Aktif') ? 'selected' : '' ?>>Tersedia</option>
+                    <option value="Tidak Aktif" <?= ($layanan->status == 'Tidak Aktif') ? 'selected' : '' ?>>Tidak Tersedia</option>
                 </select>
             </div>
         </div>

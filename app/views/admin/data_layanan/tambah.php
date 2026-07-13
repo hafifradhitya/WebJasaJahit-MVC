@@ -89,8 +89,8 @@
             <div class="col-sm-12 col-md-10">
                 <select name="status" class="custom-select col-12" required>
                     <option value="">-- Pilih Status --</option>
-                    <option value="Aktif">Aktif</option>
-                    <option value="Tidak Aktif">Tidak Aktif</option>
+                    <option value="Aktif">Tersedia</option>
+                    <option value="Tidak Aktif">Tidak Tersedia</option>
                 </select>
             </div>
         </div>
